@@ -29,22 +29,15 @@ static const char *TAG = "main";
 
 esp_err_t start_rest_server(const char *base_path);
 
-static uint8_t s_led_state = 0;
-
 static led_strip_handle_t led_strip;
 
-static void blink_led(void)
+int dutyCycle1 = 0;
+int dutyCycle2 = 0;
+int dutyCycle3 = 0;
+void set_leds(void)
 {
-    /* If the addressable LED is enabled */
-    if (s_led_state) {
-        /* Set the LED pixel using RGB from 0 (0%) to 255 (100%) for each color */
-        led_strip_set_pixel(led_strip, 0, 16, 16, 16);
-        /* Refresh the strip to send data */
-        led_strip_refresh(led_strip);
-    } else {
-        /* Set all LED off to clear all pixels */
-        led_strip_clear(led_strip);
-    }
+    led_strip_set_pixel(led_strip, 0, dutyCycle1, dutyCycle2, dutyCycle3);
+    led_strip_refresh(led_strip);
 }
 
 static void configure_led(void)
@@ -63,6 +56,7 @@ static void configure_led(void)
     ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip));
     /* Set all LED off to clear all pixels */
     led_strip_clear(led_strip);
+    set_leds();
 }
 
 esp_err_t init_fs(void)
@@ -137,12 +131,4 @@ void app_main(void)
 
     /* Configure the peripheral according to the LED type */
     configure_led();
-
-    while (1) {
-        ESP_LOGI(TAG, "Turning the LED %s!", s_led_state == true ? "ON" : "OFF");
-        blink_led();
-        /* Toggle the LED state */
-        s_led_state = !s_led_state;
-        vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
-    }
 }

@@ -13,3 +13,8 @@
   - добавяне на WebServer, взетo е само необходимото от [HTTP Restful API Server Example](https://github.com/espressif/esp-idf/tree/master/examples/protocols/http_server/restful_server). Интерисува ни само съкратен 'rest_server.c'. Папката 'html' е добавена в ESP-IDF като "/spiffs". Вече е възможно стартиране на клиент в Web Browser : <http://192.168.1.101> (сложете вашето IP). Светодиода още само мига, не се управлява от плъзгачите;
   - добавяне на [mDNS](https://components.espressif.com/components/espressif/mdns/versions/1.8.0) рекламиране.  Вече е възможно стартиране на клиент в Web Browser по име : <http://rgb-leds/>
   - добавен WebSocket сървър от примера [Websocket echo server](https://github.com/espressif/esp-idf/tree/master/examples/protocols/http_server/ws_echo_server). Засега само успешно се свързва с клиентите и приема тяхни съобщения.
+  - преобразуване [Arduino файла](https://raw.githubusercontent.com/RuiSantosdotme/Random-Nerd-Tutorials/master/Projects/ESP32/ESP32_Multiple_Sliders_Web_Server/ESP32_Multiple_Sliders_Web_Server.ino) от примера [ESP32 Web Server (WebSocket) with Multiple Sliders: Control LEDs Brightness (PWM)](https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/) по правилата на [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) и управление на RGB светодиода.  
+
+**Проекта е завършен успешно, до 5 клиента работят заедно.**  
+
+Ако има нови експерименти, ще бъдат описани по-долу.

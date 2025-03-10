@@ -108,14 +108,23 @@ static esp_err_t rest_common_get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+static char sliderValue1[5] = "0";
+static char sliderValue2[5] = "0";
+static char sliderValue3[5] = "0";
+
+extern int dutyCycle1;
+extern int dutyCycle2;
+extern int dutyCycle3;
+
 /*
  * Structure holding server handle
  * and internal socket fd in order
  * to use out of request send
  */
-struct async_resp_arg {
+struct async_resp_text_arg {
     httpd_handle_t hd;
     int fd;
+    char *text;
 };
 
 /*
@@ -123,33 +132,64 @@ struct async_resp_arg {
  */
 static void ws_async_send(void *arg)
 {
-    static const char * data = "Async data";
-    struct async_resp_arg *resp_arg = arg;
-    httpd_handle_t hd = resp_arg->hd;
-    int fd = resp_arg->fd;
+    struct async_resp_text_arg *resp_arg = arg;
     httpd_ws_frame_t ws_pkt;
     memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-    ws_pkt.payload = (uint8_t*)data;
-    ws_pkt.len = strlen(data);
+
+    ws_pkt.payload = (uint8_t*)resp_arg->text;
+    ws_pkt.len = strlen(resp_arg->text);
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
 
-    httpd_ws_send_frame_async(hd, fd, &ws_pkt);
+    httpd_ws_send_frame_async(resp_arg->hd, resp_arg->fd, &ws_pkt);
+    ESP_LOGV(TAG, "%s", resp_arg->text);
+
+    free(resp_arg->text);
+    resp_arg->text = NULL;
     free(resp_arg);
 }
 
-static esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
+httpd_handle_t server = NULL;
+
+extern void set_leds(void);
+static void notifyClients(void)
 {
-    struct async_resp_arg *resp_arg = malloc(sizeof(struct async_resp_arg));
-    if (resp_arg == NULL) {
-        return ESP_ERR_NO_MEM;
+    set_leds();
+
+    // ws.textAll(sliderValues);
+    size_t clients = CONFIG_LWIP_MAX_SOCKETS;
+    int    client_fds[CONFIG_LWIP_MAX_SOCKETS];
+    if (httpd_get_client_list(server, &clients, client_fds) == ESP_OK) {
+        if (clients) {
+            cJSON *record = cJSON_CreateObject();
+            cJSON_AddStringToObject(record, "sliderValue1", sliderValue1);
+            cJSON_AddStringToObject(record, "sliderValue2", sliderValue2);
+            cJSON_AddStringToObject(record, "sliderValue3", sliderValue3);
+            const char *serializedData = cJSON_PrintUnformatted(record);
+            cJSON_Delete(record);
+            if (strlen(serializedData) > 5) { // празни не пращаме
+                // Serial.print(getSliderValues());
+                ESP_LOGI(TAG, "Sending to all clients async message '%s'", serializedData);
+                for (size_t i=0; i < clients; ++i) {
+                    int sock = client_fds[i];
+                    if (httpd_ws_get_fd_info(server, sock) == HTTPD_WS_CLIENT_WEBSOCKET) {
+                        ESP_LOGI(TAG, "Active client (fd=%d) -> sending async message", sock);
+                        struct async_resp_text_arg *resp_arg = malloc(sizeof(struct async_resp_text_arg));
+                        assert(resp_arg != NULL);
+                        resp_arg->hd = server;
+                        resp_arg->fd = sock;
+                        resp_arg->text = malloc(strlen(serializedData) + 1);
+                        strcpy(resp_arg->text, serializedData);
+                        if (httpd_queue_work(resp_arg->hd, ws_async_send, resp_arg) != ESP_OK) {
+                            ESP_LOGE(TAG, "httpd_queue_work failed!");
+                        }
+                    }
+                }
+            }
+            free((void *)serializedData);
+        }
+    } else {
+        ESP_LOGE(TAG, "httpd_get_client_list failed!");
     }
-    resp_arg->hd = req->handle;
-    resp_arg->fd = httpd_req_to_sockfd(req);
-    esp_err_t ret = httpd_queue_work(handle, ws_async_send, resp_arg);
-    if (ret != ESP_OK) {
-        free(resp_arg);
-    }
-    return ret;
 }
 
 /*
@@ -191,9 +231,37 @@ static esp_err_t echo_handler(httpd_req_t *req)
         ESP_LOGI(TAG, "Got packet with message: %s", ws_pkt.payload);
     }
     ESP_LOGI(TAG, "Packet type: %d", ws_pkt.type);
-    if (ws_pkt.type == HTTPD_WS_TYPE_TEXT && strcmp((char*)ws_pkt.payload,"Trigger async") == 0) {
+    if (ws_pkt.type == HTTPD_WS_TYPE_TEXT) {
+        char *message = (char*)ws_pkt.payload;
+        ESP_LOGI(TAG, "message = %s", message);
+        if (memcmp(message, "1s", 2) == 0) {
+            // sliderValue1 = message.substring(2);
+            strcpy(sliderValue1, message + 2);
+            // dutyCycle1 = map(sliderValue1.toInt(), 0, 100, 0, 255);
+            dutyCycle1 = atoi(sliderValue1) * 255 / 100;
+            // Serial.println(dutyCycle1);
+            ESP_LOGI(TAG, "sliderValue1 = %s, dutyCycle1 = %d", sliderValue1, dutyCycle1);
+            // Serial.print(getSliderValues());
+            // notifyClients(getSliderValues());
+            notifyClients();
+        }
+        if (memcmp(message, "2s", 2) == 0) {
+            strcpy(sliderValue2, message + 2);
+            dutyCycle2 = atoi(sliderValue2) * 255 / 100;
+            ESP_LOGI(TAG, "sliderValue2 = %s, dutyCycle2 = %d", sliderValue2, dutyCycle2);
+            notifyClients();
+        }
+        if (memcmp(message, "3s", 2) == 0){
+            strcpy(sliderValue3, message + 2);
+            dutyCycle3 = atoi(sliderValue3) * 255 / 100;
+            ESP_LOGI(TAG, "sliderValue3 = %s, dutyCycle3 = %d", sliderValue3, dutyCycle3);
+            notifyClients();
+        }
+        if (strcmp(message, "getValues") == 0){
+            notifyClients();
+        }
         free(buf);
-        return trigger_async_send(req->handle, req);
+        return ESP_OK;
     }
 
     ret = httpd_ws_send_frame(req, &ws_pkt);
@@ -211,7 +279,6 @@ esp_err_t start_rest_server(const char *base_path)
     REST_CHECK(rest_context, "No memory for rest context", err);
     strlcpy(rest_context->base_path, base_path, sizeof(rest_context->base_path));
 
-    httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
 
