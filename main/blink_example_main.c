@@ -15,10 +15,15 @@
 #include "sdkconfig.h"
 #include "nvs_flash.h"
 #include "esp_event.h"
+#include "esp_spiffs.h"
 
 #include "my_connect.h"
 
 static const char *TAG = "main";
+
+#define WEB_MOUNT_POINT "/spiffs"
+
+esp_err_t start_rest_server(const char *base_path);
 
 static uint8_t s_led_state = 0;
 
@@ -56,6 +61,37 @@ static void configure_led(void)
     led_strip_clear(led_strip);
 }
 
+esp_err_t init_fs(void)
+{
+    esp_vfs_spiffs_conf_t conf = {
+        .base_path = WEB_MOUNT_POINT,
+        .partition_label = NULL,
+        .max_files = 5,
+        .format_if_mount_failed = false
+    };
+    esp_err_t ret = esp_vfs_spiffs_register(&conf);
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else if (ret == ESP_ERR_NOT_FOUND) {
+            ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
+        }
+        return ESP_FAIL;
+    }
+
+    size_t total = 0, used = 0;
+    ret = esp_spiffs_info(NULL, &total, &used);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+    } else {
+        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+    }
+    return ESP_OK;
+}
+
 void app_main(void)
 {
 
@@ -69,6 +105,9 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    ESP_ERROR_CHECK(init_fs());
+    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT));
 
     ESP_LOGI(TAG, "Start my_connect");
     ESP_ERROR_CHECK(my_connect());
