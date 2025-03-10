@@ -1,0 +1,23 @@
+{
+  "name": "websocket_rgb_leds",
+  "version": "1.0.0",
+  "description": "За управление на RGB светодиод чрез WebSocet.",
+  "main": "webserver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mitko125/WebSocket_RGB_Leds.git"
+  },
+  "author": "Д.Божилов",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mitko125/WebSocket_RGB_Leds/issues"
+  },
+  "homepage": "https://github.com/mitko125/WebSocket_RGB_Leds#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.1"
+  }
+}
