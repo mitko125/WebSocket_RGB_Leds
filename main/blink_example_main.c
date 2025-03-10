@@ -16,12 +16,16 @@
 #include "nvs_flash.h"
 #include "esp_event.h"
 #include "esp_spiffs.h"
+#include "mdns.h"
+#include "lwip/apps/netbiosns.h"
 
 #include "my_connect.h"
 
 static const char *TAG = "main";
 
 #define WEB_MOUNT_POINT "/spiffs"
+#define MDNS_HOST_NAME "RGB-Leds"
+#define MDNS_INSTANCE "ELL test web server"
 
 esp_err_t start_rest_server(const char *base_path);
 
@@ -92,6 +96,21 @@ esp_err_t init_fs(void)
     return ESP_OK;
 }
 
+static void initialise_mdns(void)
+{
+    mdns_init();
+    mdns_hostname_set(MDNS_HOST_NAME);
+    mdns_instance_name_set(MDNS_INSTANCE);
+
+    mdns_txt_item_t serviceTxtData[] = {
+        {"board", "esp32"},
+        {"path", "/"}
+    };
+
+    ESP_ERROR_CHECK(mdns_service_add("ESP32-WebServer", "_http", "_tcp", 80, serviceTxtData,
+                                     sizeof(serviceTxtData) / sizeof(serviceTxtData[0])));
+}
+
 void app_main(void)
 {
 
@@ -105,6 +124,10 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    initialise_mdns();
+    netbiosns_init();
+    netbiosns_set_name(MDNS_HOST_NAME);
 
     ESP_ERROR_CHECK(init_fs());
     ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT));
