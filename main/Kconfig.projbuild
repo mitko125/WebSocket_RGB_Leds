@@ -46,4 +46,6 @@ menu "Example Configuration"
         help
             Define the blinking period in milliseconds.
 
+    rsource "Kconfig_Inthernet"
+
 endmenu
