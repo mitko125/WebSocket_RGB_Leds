@@ -1,3 +1,5 @@
 dependencies:
   espressif/led_strip: ^2.4.1
   espressif/mdns: ^1.8.0
+  esp32-wifi-provision-care:
+    git: https://github.com/uqfus/esp32-wifi-provision-care.git

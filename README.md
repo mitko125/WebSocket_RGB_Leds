@@ -17,4 +17,10 @@
 
 **Проекта е завършен успешно, до 5 клиента работят заедно.**  
 
-Ако има нови експерименти, ще бъдат описани по-долу.
+## Ако има нови експерименти, ще бъдат описани по-долу:
+
+### firmware-upload-ota
+
+За смяна на софтуера през мрежата:
+
+- за основа послужи примера [esp32-firmware-upload-ota-example](https://github.com/uqfus/esp32-wifi-provision-care/tree/main/examples/esp32-firmware-upload-ota-example). Смяната се извършва през Web Browser : <http://rgb-leds/new_firmware>
