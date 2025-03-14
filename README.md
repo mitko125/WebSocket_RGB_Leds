@@ -2,7 +2,7 @@
 
 За управление на RGB светодиод чрез WebSocket.  
 Проекта е учебен и тестови.  
-Използва [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) на кит с процесор ESP32-S3 и трицветен светодиод WS2812B, към извод GPIO48.
+Използва [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) **v5.3.1** на кит с процесор ESP32-S3-N16R8 и трицветен светодиод WS2812B, към извод GPIO48.
 
 - за основа послужи примера [Blink Example](https://github.com/espressif/esp-idf/tree/master/examples/get-started/blink);
 - добавен е примера [ESP32 Web Server (WebSocket) with Multiple Sliders: Control LEDs Brightness (PWM)](https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/);
