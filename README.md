@@ -23,4 +23,4 @@
 
 За смяна на софтуера през мрежата:
 
-- за основа послужи примера [esp32-firmware-upload-ota-example](https://github.com/uqfus/esp32-wifi-provision-care/tree/main/examples/esp32-firmware-upload-ota-example). Смяната се извършва през Web Browser : <http://rgb-leds/new_firmware>
+- за основа послужи примера [esp32-firmware-upload-ota-example](https://github.com/uqfus/esp32-wifi-provision-care/tree/main/examples/esp32-firmware-upload-ota-example). Смяната се извършва през Web Browser : <http://rgb-leds/new_firmware>. Файловете на примера са прехвърлени от 'managed_components' в директори 'ota_firmware' и имат собствена [документация](main/ota_firmware/README.md).
