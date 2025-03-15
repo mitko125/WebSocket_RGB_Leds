@@ -19,8 +19,12 @@
 
 ## Ако има нови експерименти, ще бъдат описани по-долу:
 
-### firmware-upload-ota
+### 1 . firmware-upload-ota
 
 За смяна на софтуера през мрежата:
 
-- за основа послужи примера [esp32-firmware-upload-ota-example](https://github.com/uqfus/esp32-wifi-provision-care/tree/main/examples/esp32-firmware-upload-ota-example). Смяната се извършва през Web Browser : <http://rgb-leds/new_firmware>. Файловете на примера са прехвърлени от 'managed_components' в директори 'ota_firmware' и имат собствена [документация](main/ota_firmware/README.md).
+- за основа послужи примера [esp32-firmware-upload-ota-example](https://github.com/uqfus/esp32-wifi-provision-care/tree/main/examples/esp32-firmware-upload-ota-example). Файловете на примера са прехвърлени от 'managed_components' в директори 'ota_firmware' и имат собствена [документация](main/ota_firmware/README.md). Смяната се извършва през Web Browser : <http://rgb-leds/new_firmware> или чрез **curl** :
+
+```bash
+curl --data-binary @WebSocket_RGB_Leds.bin http://rgb-leds/updateota
+```

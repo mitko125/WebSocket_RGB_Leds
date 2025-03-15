@@ -53,11 +53,11 @@
 
 <script>
     function UpdateOTA() {
-        document.getElementById("upload-button").disabled = true;
         var fileInput = document.getElementById("firmware").files;
         if (fileInput.length == 0) {
             alert("No file selected!");
         } else {
+            document.getElementById("upload-button").disabled = true;
             var fwfile = fileInput[0];
             var xhttp = new XMLHttpRequest();
             xhttp.onload = function () {

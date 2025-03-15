@@ -14,10 +14,10 @@
 #include "esp_mac.h"
 #include "nvs_flash.h"
 #include "esp_http_server.h"
-// !!! #include <dns_server.h>
 #include "lwip/inet.h"
 #include "nvs.h"
 #include "cJSON.h"
+#include "esp_app_format.h"
 
 static const char *TAG = "esp32-wifi-provision-care";
 
@@ -79,6 +79,8 @@ esp_err_t wifi_provision_care_updateota_post_handler(httpd_req_t *req)
     char *buf = malloc(BUFSIZE+1);
     int received;
     int remaining = req->content_len;
+    /*deal with all receive packet*/
+    bool image_header_was_checked = false;
     while (remaining > 0)
     {
         ESP_LOGI(TAG, "Remaining size : %d", remaining);
@@ -94,6 +96,45 @@ esp_err_t wifi_provision_care_updateota_post_handler(httpd_req_t *req)
             free(buf);
             httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive firmware.");
             return ESP_OK;
+        }
+
+        if (image_header_was_checked == false) {
+            esp_app_desc_t new_app_info;
+            if (received > sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t)) {
+                // check current version with downloading
+                memcpy(&new_app_info, &buf[sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t)], sizeof(esp_app_desc_t));
+                ESP_LOGI(TAG, "New firmware version: %s", new_app_info.version);
+
+                esp_app_desc_t running_app_info;
+                if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK) {
+                    ESP_LOGI(TAG, "Running firmware version: %s", running_app_info.version);
+                }
+
+                const esp_partition_t* last_invalid_app = esp_ota_get_last_invalid_partition();
+                esp_app_desc_t invalid_app_info;
+                if (esp_ota_get_partition_description(last_invalid_app, &invalid_app_info) == ESP_OK) {
+                    ESP_LOGI(TAG, "Last invalid firmware version: %s", invalid_app_info.version);
+                }
+
+                // check current version with last invalid partition
+                if (last_invalid_app != NULL) {
+                    if (memcmp(invalid_app_info.version, new_app_info.version, sizeof(new_app_info.version)) == 0) {
+                        ESP_LOGW(TAG, "New version is the same as invalid version.");
+                        ESP_LOGW(TAG, "Previously, there was an attempt to launch the firmware with %s version, but it failed.", invalid_app_info.version);
+                        ESP_LOGW(TAG, "The firmware has been rolled back to the previous version.");
+                    }
+                }
+                if (memcmp(new_app_info.version, running_app_info.version, sizeof(new_app_info.version)) == 0) {
+                    ESP_LOGW(TAG, "Current running version is the same as a new."); // We will not continue the update.");
+                    // esp_ota_abort(update_handle);
+                    // free(buf);
+                    // httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Current running version is the same as a new. We will not continue the update.");
+                    // return ESP_OK;
+                }
+            } else {
+                ESP_LOGE(TAG, "received package is not fit len");
+            }
+            image_header_was_checked = true;
         }
 
         err = esp_ota_write( update_handle, (const void *)buf, received);
