@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Upload new firmware over the air.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<style>
+    body {
+        text-align: center;
+        font: 1.2rem "Open Sans", Helvetica, Arial, sans-serif;
+    }
+
+    h1 {
+        text-align: center;
+        font: 1.4rem 'Open Sans', Helvetica, Arial, sans-serif;
+    }
+
+    h2 {
+        text-align: center;
+        font: 1.2rem 'Open Sans', Helvetica, Arial, sans-serif;
+    }
+
+    input {
+        text-align: center;
+        font: 1.2rem 'Open Sans', Helvetica, Arial, sans-serif;
+        padding: 0.5rem;
+        min-width: 480px;
+        margin: 0.5rem auto;
+    }
+
+    button {
+        border: 0;
+        border-radius: 0.3rem;
+        background: #0dcaf0;
+        padding: 0px 1rem;
+        font: 1.2rem 'Open Sans', Helvetica, Arial, sans-serif;
+        line-height: 2.4rem;
+        transition-duration: 0.4s;
+        cursor: pointer;
+    }
+</style>
+
+<body>
+    <h1>Upload new firmware</h1>
+    <input id="firmware" type="file" />
+    <br>
+    <h2 id='ota-status'>Ready.</h2>
+    <button id="upload-button" onclick="javascript:UpdateOTA();">Upload</button>
+</body>
+
+<script>
+    function UpdateOTA() {
+        var fileInput = document.getElementById("firmware").files;
+        if (fileInput.length == 0) {
+            alert("No file selected!");
+        } else {
+            document.getElementById("upload-button").disabled = true;
+            var fwfile = fileInput[0];
+            var xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                if (this.status == 200) {
+                    document.getElementById("ota-status").textContent = this.responseText;
+                } else {
+                    document.getElementById("ota-status").textContent = this.status + ' Error!\n' + this.responseText;
+                }
+                document.getElementById("upload-button").disabled = false;
+            };
+            xhttp.upload.onprogress = function (event) {
+                var percent = event.loaded / event.total;
+                document.getElementById("ota-status").textContent = 'Progress ' + Math.round(100 * percent) + '%';
+            };
+
+            xhttp.open("POST", "/updateota");
+            xhttp.send(fwfile);
+        }
+    }
+</script>
+
+</html>

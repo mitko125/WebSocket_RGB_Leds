@@ -2,7 +2,7 @@
 
 За управление на RGB светодиод чрез WebSocket.  
 Проекта е учебен и тестови.  
-Използва [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) на кит с процесор ESP32-S3 и трицветен светодиод WS2812B, към извод GPIO48.
+Използва [ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html) **v5.3.1** на кит с процесор ESP32-S3-N16R8 и трицветен светодиод WS2812B, към извод GPIO48.
 
 - за основа послужи примера [Blink Example](https://github.com/espressif/esp-idf/tree/master/examples/get-started/blink);
 - добавен е примера [ESP32 Web Server (WebSocket) with Multiple Sliders: Control LEDs Brightness (PWM)](https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/);
@@ -17,4 +17,14 @@
 
 **Проекта е завършен успешно, до 5 клиента работят заедно.**  
 
-Ако има нови експерименти, ще бъдат описани по-долу.
+## Ако има нови експерименти, ще бъдат описани по-долу:
+
+### 1 . firmware-upload-ota
+
+За смяна на софтуера през мрежата:
+
+- за основа послужи примера [esp32-firmware-upload-ota-example](https://github.com/uqfus/esp32-wifi-provision-care/tree/main/examples/esp32-firmware-upload-ota-example). Файловете на примера са прехвърлени от 'managed_components' в директори 'ota_firmware' и имат собствена [документация](main/ota_firmware/README.md). Смяната се извършва през Web Browser : <http://rgb-leds/new_firmware> или чрез **curl** :
+
+```bash
+curl --data-binary @WebSocket_RGB_Leds.bin http://rgb-leds/updateota
+```
