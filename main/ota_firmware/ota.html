@@ -45,7 +45,8 @@
 
 <body>
     <h1>Upload new firmware</h1>
-    <input id="firmware" type="file" />
+    <input id="firmware" type="file" accept=".bin" />
+    <!-- <input id="firmware" type="file" accept="application/octet-stream" /> -->
     <br>
     <h2 id='ota-status'>Ready.</h2>
     <button id="upload-button" onclick="javascript:UpdateOTA();">Upload</button>

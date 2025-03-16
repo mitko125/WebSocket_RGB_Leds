@@ -65,7 +65,8 @@ esp_err_t wifi_provision_care_updateota_post_handler(httpd_req_t *req)
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Firmware too big.");
         return ESP_OK;
     }
-    ESP_LOGI(TAG, "Begin writing %d bytes firmware to partition '%s'.", req->content_len,  update_partition->label);
+    ESP_LOGI(TAG, "Begin writing %d bytes firmware to partition '%s', with size %lu bytes.", req->content_len,  
+        update_partition->label, update_partition->size);
 
     err = esp_ota_begin(update_partition, OTA_WITH_SEQUENTIAL_WRITES, &update_handle);
     if (err != ESP_OK)
