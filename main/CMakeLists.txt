@@ -5,6 +5,8 @@ idf_component_register(
     SRCS "rest_server.c" "my_connect.c" "blink_example_main.c"
         ${OTA_FIRMWARE_SOURCES}
     INCLUDE_DIRS "."  ${OTA_FIRMWARE}
+    REQUIRES esp_wifi esp_eth nvs_flash spiffs app_update esp_driver_gpio 
+        esp_https_server json
     EMBED_FILES ${OTA_FIRMWARE}/ota.html
 )
 
