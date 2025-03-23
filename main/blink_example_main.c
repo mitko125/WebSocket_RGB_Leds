@@ -19,6 +19,8 @@
 #include "mdns.h"
 #include "lwip/apps/netbiosns.h"
 
+#include "dyndns_c.h"
+
 #include "my_connect.h"
 
 static const char *TAG = "main";
@@ -131,4 +133,22 @@ void app_main(void)
 
     /* Configure the peripheral according to the LED type */
     configure_led();
+
+    // DynDNS
+#define CONFIG_URL "iot.dns-cloud.net"
+#define CONFIG_DYNDNS_AUTH ""
+
+    esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
+
+    // чака интернет връзка
+    while(!fl_connect)
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        
+    dyndns_init(DD_CLOUDNS);
+    dyndns_set_hostname(CONFIG_URL);
+    dyndns_set_auth(CONFIG_DYNDNS_AUTH);
+    if (dyndns_update())
+        ESP_LOGI(TAG, "%s: DynDNS update ok (%s)", __FUNCTION__, CONFIG_URL);
+    else
+        ESP_LOGE(TAG, "%s: DynDNS update failed (%s)", __FUNCTION__, CONFIG_URL);
 }
