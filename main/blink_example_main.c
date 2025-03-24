@@ -135,20 +135,30 @@ void app_main(void)
     configure_led();
 
     // DynDNS
-#define CONFIG_URL "iot.dns-cloud.net"
-#define CONFIG_DYNDNS_AUTH ""
+#include "secrets.h"
+
+// за услугите на ClouDNS
+#define DDNS_PROVIDEF DD_CLOUDNS
 
     esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
 
-    // чака интернет връзка
-    while(!fl_connect)
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
-        
-    dyndns_init(DD_CLOUDNS);
-    dyndns_set_hostname(CONFIG_URL);
-    dyndns_set_auth(CONFIG_DYNDNS_AUTH);
-    if (dyndns_update())
-        ESP_LOGI(TAG, "%s: DynDNS update ok (%s)", __FUNCTION__, CONFIG_URL);
-    else
-        ESP_LOGE(TAG, "%s: DynDNS update failed (%s)", __FUNCTION__, CONFIG_URL);
+    bool ddns_ok = false;
+    do {
+        // чака интернет връзка
+        while (!fl_connect)
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+        dyndns_init(DDNS_PROVIDEF);
+        dyndns_set_hostname(CONFIG_URL);
+        dyndns_set_auth(CONFIG_DYNDNS_AUTH);
+        ddns_ok = dyndns_update();
+        if (ddns_ok)
+            ESP_LOGI(TAG, "%s: DynDNS update ok (%s)", __FUNCTION__, CONFIG_URL);
+        else
+            ESP_LOGE(TAG, "%s: DynDNS update failed (%s)", __FUNCTION__, CONFIG_URL);
+    }while(!ddns_ok);
+    // някои повтарят на 24часа, но моя доставчик сменя по-често (но това е демо)
+    
 }
