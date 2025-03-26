@@ -2,7 +2,7 @@ set(OTA_FIRMWARE ota_firmware)
 file(GLOB_RECURSE OTA_FIRMWARE_SOURCES ${OTA_FIRMWARE}/*.c)
 
 set(DDNS_ACME ddns_acme)
-file(GLOB_RECURSE DDNS_ACME_SOURCES ${DDNS_ACME}/*.cpp)
+file(GLOB_RECURSE DDNS_ACME_SOURCES ${DDNS_ACME}/*.cpp ${DDNS_ACME}/*.c)
 
 idf_component_register(
     SRCS "rest_server.c" "my_connect.c" "blink_example_main.c"

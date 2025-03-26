@@ -28,3 +28,9 @@
 ```bash
 curl --data-binary @WebSocket_RGB_Leds.bin http://rgb-leds/updateota
 ```
+
+### 2 . Dynamic DNS
+
+Клон за представяне на сървъра в интернет, чрез [Dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS).
+
+Файловете са събрани в [директори](/main/ddns_acme/) и имат [документация](/main/ddns_acme/README.md).
