@@ -135,10 +135,13 @@ void app_main(void)
     configure_led();
 
     // DynDNS
-#include "secrets.h"
 
 // за услугите на ClouDNS
-#define DDNS_PROVIDEF DD_CLOUDNS
+// #define DDNS_PROVIDEF 2  // DD_CLOUDNS
+// за услугите на NoIP
+#define DDNS_PROVIDEF 1 // DD_NOIP
+
+    #include "secrets.h"
 
     esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
 
