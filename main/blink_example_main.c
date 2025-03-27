@@ -131,4 +131,8 @@ void app_main(void)
 
     /* Configure the peripheral according to the LED type */
     configure_led();
+
+    extern void dynamic_dns_set(void);
+    dynamic_dns_set();
+    
 }
