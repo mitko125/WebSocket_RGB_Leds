@@ -2,3 +2,4 @@ dependencies:
   espressif/led_strip: ^2.4.1
   espressif/mdns: ^1.8.0
   dannybackx/dyndns: ^0.0.3
+  joltwallet/littlefs: ^1.19.1
