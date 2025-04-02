@@ -19,7 +19,7 @@ app.get('/*', (req, res) => {
     let need_file = req.url;
     if (need_file == "/")
         need_file = "/index.html"
-    need_file = __dirname + '/html' + need_file;
+    need_file = __dirname + '/storage_dirs/html' + need_file;
     console.log(`get('/*' req.url = ${req.url}`);
     fs.readFile(need_file, function (err, data) {
         if (err) {

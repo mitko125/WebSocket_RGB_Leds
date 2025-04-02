@@ -126,7 +126,7 @@ void app_main(void)
     netbiosns_set_name(MDNS_HOST_NAME);
 
     ESP_ERROR_CHECK(init_fs());
-    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT));
+    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT"/html"));
 
     ESP_LOGI(TAG, "Start my_connect");
     ESP_ERROR_CHECK(my_connect());

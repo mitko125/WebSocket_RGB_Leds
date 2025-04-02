@@ -13,4 +13,4 @@ idf_component_register(
     EMBED_FILES ${OTA_FIRMWARE}/ota.html
 )
 
-littlefs_create_partition_image(storage ../html FLASH_IN_PROJECT)
+littlefs_create_partition_image(storage ../storage_dirs FLASH_IN_PROJECT)
