@@ -25,17 +25,18 @@
  */
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-  enum dyndns_provider {
-    DD_UNKNOWN,
-    DD_NOIP,
-    DD_CLOUDNS
-  };
-  void dyndns_init(enum dyndns_provider);
-  void dyndns_set_hostname();
-  void dyndns_set_auth();
-  bool dyndns_update();
+    enum dyndns_provider {
+        DD_UNKNOWN,
+        DD_NOIP,
+        DD_CLOUDNS
+    };
+    void dyndns_init(enum dyndns_provider);
+    void dyndns_set_hostname();
+    void dyndns_set_auth();
+    bool dyndns_update();
 #ifdef __cplusplus
 }
 #endif

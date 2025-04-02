@@ -27,7 +27,10 @@ static const char *TAG = "main";
 #define MDNS_HOST_NAME "RGB-Leds"
 #define MDNS_INSTANCE "ELL test web server"
 
-esp_err_t start_rest_server(const char *base_path);
+EventGroupHandle_t xEventTask;
+int FTP_TASK_FINISH_BIT = BIT2;
+
+extern esp_err_t start_rest_server(const char *base_path);
 
 static led_strip_handle_t led_strip;
 
@@ -131,7 +134,27 @@ void app_main(void)
     /* Configure the peripheral according to the LED type */
     configure_led();
 
-    extern void dynamic_dns_set(void);
-    dynamic_dns_set();
+    if (1) {    // ftp сървър може да го забраним
+        extern void ftp_task (void *pvParameters);
+        // Create FTP server task
+        xEventTask = xEventGroupCreate();
+        xTaskCreate(ftp_task, "FTP", 1024*6, NULL, tskIDLE_PRIORITY + 2, NULL);
+        // тези отдолу засега не ми трябват
+        // xEventGroupWaitBits( xEventTask,
+        //         FTP_TASK_FINISH_BIT, /* The bits within the event group to wait for. */
+        //         pdTRUE, /* BIT_0 should be cleared before returning. */
+        //         pdFALSE, /* Don't wait for both bits, either bit will do. */
+        //         portMAX_DELAY);/* Wait forever. */
+        // ESP_LOGE(tag, "ftp_task finish");
+    }
+
+    // чака интернет връзка (от тук надолу не работят офлайн)
+    while (!fl_connect)
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    if (1) {    // може да го изключим
+        extern void dynamic_dns_set(void);
+        dynamic_dns_set();
+    }
     
 }

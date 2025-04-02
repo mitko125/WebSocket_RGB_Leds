@@ -28,36 +28,44 @@
 
 static Dyndns *dd = 0;
 
-static void _dyndns_init(enum dyndns_provider dp) {
-  dd = new Dyndns(dp);
+static void _dyndns_init(enum dyndns_provider dp)
+{
+    dd = new Dyndns(dp);
 }
 
-static void _dyndns_set_hostname(const char *hn) {
-  dd->setHostname(hn);
+static void _dyndns_set_hostname(const char *hn)
+{
+    dd->setHostname(hn);
 }
 
-static void _dyndns_set_auth(const char *auth) {
-  dd->setAuth(auth);
+static void _dyndns_set_auth(const char *auth)
+{
+    dd->setAuth(auth);
 }
 
-static bool _dyndns_update() {
-  return dd->update();
+static bool _dyndns_update()
+{
+    return dd->update();
 }
 
 extern "C" {
-  void dyndns_init(enum dyndns_provider dp) {
-    _dyndns_init(dp);
-  }
+    void dyndns_init(enum dyndns_provider dp)
+    {
+        _dyndns_init(dp);
+    }
 
-  void dyndns_set_hostname(const char *hn) {
-    _dyndns_set_hostname(hn);
-  }
+    void dyndns_set_hostname(const char *hn)
+    {
+        _dyndns_set_hostname(hn);
+    }
 
-  void dyndns_set_auth(const char *auth) {
-    _dyndns_set_auth(auth);
-  }
+    void dyndns_set_auth(const char *auth)
+    {
+        _dyndns_set_auth(auth);
+    }
 
-  bool dyndns_update() {
-    return _dyndns_update();
-  }
+    bool dyndns_update()
+    {
+        return _dyndns_update();
+    }
 }
