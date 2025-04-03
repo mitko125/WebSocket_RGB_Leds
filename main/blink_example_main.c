@@ -18,6 +18,7 @@
 #include "esp_littlefs.h"
 #include "mdns.h"
 #include "lwip/apps/netbiosns.h"
+#include "esp_sntp.h"
 
 #include "my_connect.h"
 
@@ -133,6 +134,37 @@ static void initialise_mdns(void)
                                      sizeof(serviceTxtData) / sizeof(serviceTxtData[0])));
 }
 
+static void time_sync_notification_cb(struct timeval *tv)
+{
+	ESP_LOGI(TAG, "Notification of a time synchronization event");
+}
+
+static void initialize_sntp(void)
+{
+#define CONFIG_NTP_SERVER "pool.ntp.org"
+    ESP_LOGI(TAG, "Initializing SNTP");
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    ESP_LOGI(TAG, "Your NTP Server is %s", CONFIG_NTP_SERVER);
+    esp_sntp_setservername(0, CONFIG_NTP_SERVER);
+    sntp_set_time_sync_notification_cb(time_sync_notification_cb);
+    esp_sntp_init();
+}
+
+static esp_err_t obtain_time(void)
+{
+	initialize_sntp();
+	// wait for time to be set
+	int retry = 0;
+	const int retry_count = 10;
+	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
+		ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
+	}
+
+	if (retry == retry_count) return ESP_FAIL;
+	return ESP_OK;
+}
+
 void app_main(void)
 {
 
@@ -177,6 +209,27 @@ void app_main(void)
     // чака интернет връзка (от тук надолу не работят офлайн)
     while (!fl_connect)
         vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    // obtain time over NTP
+    ESP_LOGI(TAG, "Getting time over NTP.");
+    ret = obtain_time();
+    if(ret != ESP_OK) {
+        ESP_LOGE(TAG, "Fail to getting time over NTP.");
+        while(1) { vTaskDelay(1); }
+    }
+
+    // настройка на летен/зимен часови пояс за София
+    setenv("TZ", "EET-2EEST,M3.5.0/3,M10.5.0/4", 1);	// Постановление 94 от 13 март 1997
+    tzset();
+
+    // Show current date & time
+    time_t now;
+    struct tm timeinfo;
+    char strftime_buf[64];
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+    ESP_LOGI(TAG, "The local date/time is: %s", strftime_buf);
 
     if (1) {    // може да го изключим
         extern void dynamic_dns_set(void);

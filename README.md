@@ -39,7 +39,11 @@ curl --data-binary @WebSocket_RGB_Leds.bin http://rgb-leds/updateota
 
 Потребител и паролата по подразбиране `admin`. Сървъра е взет от [esp-idf-ftpServer](https://github.com/nopnop2002/esp-idf-ftpServer), но вместо с `FAT` го ползвам с `littlefs`.
 
-### 4 . SSL/TLS сертификат
+### 4 . Получване на точно време от SNTP сървър
+
+Важно е за ftp сървъра и SSL/TLS сертификатите. Добра [статия](https://kotyara12.ru/iot/esp-time/) на Руски език. Ако разполагаме с някакъв RTC часовник, може да го сверяваме но този сървър.
+
+### 5 . SSL/TLS сертификат
 
 Полуаване на сертифика, чрез [ACME client](https://letsencrypt.org/docs/client-options/).
 
