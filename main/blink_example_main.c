@@ -21,11 +21,10 @@
 #include "esp_sntp.h"
 
 #include "my_connect.h"
+#include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
 
 static const char *TAG = "main";
 
-#define WEB_MOUNT_POINT "/littlefs"
-// #define ACME_MOUNT_POINT "/undefined"
 #define MDNS_HOST_NAME "RGB-Leds"
 #define MDNS_INSTANCE "ELL test web server"
 
@@ -184,7 +183,7 @@ void app_main(void)
     netbiosns_set_name(MDNS_HOST_NAME);
 
     ESP_ERROR_CHECK(init_fs());
-    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html"));
+    // !!! временно спрян докато се намери решение ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html"));
 
     ESP_LOGI(TAG, "Start my_connect");
     ESP_ERROR_CHECK(my_connect());

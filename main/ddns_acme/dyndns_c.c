@@ -13,12 +13,7 @@
 
 static const char *TAG = "dyndns_c.c";
 
-// за услугите на ClouDNS
-#define DDNS_PROVIDEF 2 // DD_CLOUDNS
-// за услугите на NoIP
-// #define DDNS_PROVIDEF 1 // DD_NOIP
-
-#include "secrets.h"
+#include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
 
 #define MAX_HTTP_OUTPUT_BUFFER 2048
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
