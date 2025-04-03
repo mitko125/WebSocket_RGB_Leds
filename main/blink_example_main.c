@@ -192,7 +192,7 @@ void app_main(void)
     /* Configure the peripheral according to the LED type */
     configure_led();
 
-    if (1) {    // ftp сървър може да го забраним
+    if (1) {    // ftp сървър, може да го изключим
         extern void ftp_task (void *pvParameters);
         // Create FTP server task
         xEventTask = xEventGroupCreate();
@@ -231,9 +231,13 @@ void app_main(void)
     strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
     ESP_LOGI(TAG, "The local date/time is: %s", strftime_buf);
 
-    if (1) {    // може да го изключим
+    if (1) {    // DynDNS, може да го изключим
         extern void dynamic_dns_set(void);
         dynamic_dns_set();
     }
-    
+
+    if (1) {    // ACME клиент, може да го изключим
+        extern void acme_client(void);
+        acme_client();
+    }
 }

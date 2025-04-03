@@ -9,7 +9,6 @@
 #endif
 #include "esp_http_client.h"
 
-#include "my_connect.h"
 #include "dyndns_c.h"
 
 static const char *TAG = "dyndns_c.c";
