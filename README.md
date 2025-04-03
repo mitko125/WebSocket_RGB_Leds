@@ -37,4 +37,10 @@ curl --data-binary @WebSocket_RGB_Leds.bin http://rgb-leds/updateota
 
 ### 3 . Добавен ftp сървър
 
-Потребител и паролата по подразбиране `admin`.
+Потребител и паролата по подразбиране `admin`. Сървъра е взет от [esp-idf-ftpServer](https://github.com/nopnop2002/esp-idf-ftpServer), но вместо с `FAT` го ползвам с `littlefs`.
+
+### 4 . SSL/TLS сертификат
+
+Полуаване на сертифика, чрез [ACME client](https://letsencrypt.org/docs/client-options/).
+
+Файловете са събрани в [директори](/main/ddns_acme/) и имат [документация](/main/ddns_acme/README.md#получаване-на-ssltls-сертификат-от-lets-encrypt-чрез-acme-клиент).

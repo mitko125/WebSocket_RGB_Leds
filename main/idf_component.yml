@@ -3,3 +3,5 @@ dependencies:
   espressif/mdns: ^1.8.0
   dannybackx/dyndns: ^0.0.3
   joltwallet/littlefs: ^1.19.1
+  dannybackx/acmeclient: ^0.1.0
+  bblanchon/arduinojson: ^7.3.1

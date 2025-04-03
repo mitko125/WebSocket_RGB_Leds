@@ -44,6 +44,9 @@
  ********************************************************/
 #define CONFIG_FTP_USER         "admin"
 #define CONFIG_FTP_PASSWORD     "admin"
+// избираме от:
+// #define WEB_MOUNT_POINT "/littlefs"
+// #define ACME_MOUNT_POINT "/undefined"
 #define CONFIG_FTP_BASE_PATH    "/littlefs"
 
 

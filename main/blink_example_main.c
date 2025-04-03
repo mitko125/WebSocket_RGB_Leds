@@ -24,6 +24,7 @@
 static const char *TAG = "main";
 
 #define WEB_MOUNT_POINT "/littlefs"
+// #define ACME_MOUNT_POINT "/undefined"
 #define MDNS_HOST_NAME "RGB-Leds"
 #define MDNS_INSTANCE "ELL test web server"
 
@@ -66,7 +67,7 @@ esp_err_t init_fs(void)
 {
     esp_vfs_littlefs_conf_t conf = {
         .base_path = WEB_MOUNT_POINT,
-        .partition_label = NULL,
+        .partition_label = "storage",
         .format_if_mount_failed = false
     };
     esp_err_t ret = esp_vfs_littlefs_register(&conf);
@@ -83,12 +84,37 @@ esp_err_t init_fs(void)
     }
 
     size_t total = 0, used = 0;
-    ret = esp_littlefs_info(NULL, &total, &used);
+    ret = esp_littlefs_info(conf.partition_label, &total, &used);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to get LITTLEFS partition information (%s)", esp_err_to_name(ret));
     } else {
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
+
+#ifdef ACME_MOUNT_POINT
+    conf.base_path = ACME_MOUNT_POINT;
+    conf.partition_label = "storage1";
+    conf.format_if_mount_failed = true;
+    ret = esp_vfs_littlefs_register(&conf);
+
+    if (ret != ESP_OK) {
+        if (ret == ESP_FAIL) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else if (ret == ESP_ERR_NOT_FOUND) {
+            ESP_LOGE(TAG, "Failed to find LITTLEFS partition");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize LITTLEFS (%s)", esp_err_to_name(ret));
+        }
+        return ESP_FAIL;
+    }
+
+    ret = esp_littlefs_info(conf.partition_label, &total, &used);
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to get LITTLEFS partition information (%s)", esp_err_to_name(ret));
+    } else {
+        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+    }
+#endif
     return ESP_OK;
 }
 
@@ -126,7 +152,7 @@ void app_main(void)
     netbiosns_set_name(MDNS_HOST_NAME);
 
     ESP_ERROR_CHECK(init_fs());
-    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT"/html"));
+    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html"));
 
     ESP_LOGI(TAG, "Start my_connect");
     ESP_ERROR_CHECK(my_connect());
@@ -139,7 +165,7 @@ void app_main(void)
         // Create FTP server task
         xEventTask = xEventGroupCreate();
         xTaskCreate(ftp_task, "FTP", 1024*6, NULL, tskIDLE_PRIORITY + 2, NULL);
-        // тези отдолу засега не ми трябват
+        // тези отдолу засега не ми трябват, те са за случай на изключване/превключване на ftp 
         // xEventGroupWaitBits( xEventTask,
         //         FTP_TASK_FINISH_BIT, /* The bits within the event group to wait for. */
         //         pdTRUE, /* BIT_0 should be cleared before returning. */

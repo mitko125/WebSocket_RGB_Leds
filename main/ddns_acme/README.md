@@ -1,4 +1,4 @@
-# Представяне на сървъра в интернет, чрез Dynamic DNS и получаване на SSL/TLS от Let's Encrypt, чрез ACME клиент
+# Представяне на сървъра в интернет, чрез Dynamic DNS и получаване на SSL/TLS сертификат от Let's Encrypt, чрез ACME клиент
 
 ## Представяне на сървъра в интернет, чрез Dynamic
 
@@ -22,3 +22,11 @@ IP то на рутера узнавам от [api.ipify.org](https://api.ipify.
 Този клон е добра основа за случай, че нямаме статично IP за ESP32. За `ComNET` се оказа безпредметно, понеже не пускат никой към рутерите (зад тяхната DMZ), ако IP то му не е статично.
 
 В реална обстановка трябва след всяко отпадане на рутера, а и да кажем на 1 час да се проверява public_ip и да се вика dyndns_update() при нужда.
+
+## Получаване на SSL/TLS сертификат от Let's Encrypt, чрез ACME клиент
+
+Използва се [ACME клиент](https://components.espressif.com/components/dannybackx/acmeclient/versions/0.1.0).
+
+### **ЗАБЕЛЕЖКА:**
+
+Понеже `FLASH_IN_PROJECT` в `CMakeLists.txt` изтрива целия `storage`, изграждаме допълнителен `storage1`, където `ACME клиента` да записва сертификатите си, без да се изтриват. Избира се с `#define ACME_MOUNT_POINT` и губим 100K flash. Другата опция е без `FLASH_IN_PROJECT`, ако както в случая е завършила разработката на html файловете. Избирам втория вариант и с готови сертификати и html файлове си играя през `ftp`. Всичко това може да се реши и през `Konfig` (за ACME [пример1](/managed_components/dannybackx__acmeclient/examples/standalone/main/Kconfig), [пример2](/managed_components/dannybackx__acmeclient/examples/framework/main/Kconfig) са добри), но това е учебен проект.
