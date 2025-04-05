@@ -91,30 +91,30 @@ esp_err_t init_fs(void)
         ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
     }
 
-#ifdef ACME_MOUNT_POINT
-    conf.base_path = ACME_MOUNT_POINT;
-    conf.partition_label = "storage1";
-    conf.format_if_mount_failed = true;
-    ret = esp_vfs_littlefs_register(&conf);
+    if (strcmp(WEB_MOUNT_POINT, ACME_MOUNT_POINT)) {
+        conf.base_path = ACME_MOUNT_POINT;
+        conf.partition_label = "storage1";
+        conf.format_if_mount_failed = true;
+        ret = esp_vfs_littlefs_register(&conf);
 
-    if (ret != ESP_OK) {
-        if (ret == ESP_FAIL) {
-            ESP_LOGE(TAG, "Failed to mount or format filesystem");
-        } else if (ret == ESP_ERR_NOT_FOUND) {
-            ESP_LOGE(TAG, "Failed to find LITTLEFS partition");
-        } else {
-            ESP_LOGE(TAG, "Failed to initialize LITTLEFS (%s)", esp_err_to_name(ret));
+        if (ret != ESP_OK) {
+            if (ret == ESP_FAIL) {
+                ESP_LOGE(TAG, "Failed to mount or format filesystem");
+            } else if (ret == ESP_ERR_NOT_FOUND) {
+                ESP_LOGE(TAG, "Failed to find LITTLEFS partition");
+            } else {
+                ESP_LOGE(TAG, "Failed to initialize LITTLEFS (%s)", esp_err_to_name(ret));
+            }
+            return ESP_FAIL;
         }
-        return ESP_FAIL;
-    }
 
-    ret = esp_littlefs_info(conf.partition_label, &total, &used);
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get LITTLEFS partition information (%s)", esp_err_to_name(ret));
-    } else {
-        ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+        ret = esp_littlefs_info(conf.partition_label, &total, &used);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to get LITTLEFS partition information (%s)", esp_err_to_name(ret));
+        } else {
+            ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
+        }
     }
-#endif
     return ESP_OK;
 }
 
@@ -133,36 +133,12 @@ static void initialise_mdns(void)
                                      sizeof(serviceTxtData) / sizeof(serviceTxtData[0])));
 }
 
+#ifdef ENABLE_SNTP
 static void time_sync_notification_cb(struct timeval *tv)
 {
 	ESP_LOGI(TAG, "Notification of a time synchronization event");
 }
-
-static void initialize_sntp(void)
-{
-#define CONFIG_NTP_SERVER "pool.ntp.org"
-    ESP_LOGI(TAG, "Initializing SNTP");
-    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    ESP_LOGI(TAG, "Your NTP Server is %s", CONFIG_NTP_SERVER);
-    esp_sntp_setservername(0, CONFIG_NTP_SERVER);
-    sntp_set_time_sync_notification_cb(time_sync_notification_cb);
-    esp_sntp_init();
-}
-
-static esp_err_t obtain_time(void)
-{
-	initialize_sntp();
-	// wait for time to be set
-	int retry = 0;
-	const int retry_count = 10;
-	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
-		ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
-		vTaskDelay(2000 / portTICK_PERIOD_MS);
-	}
-
-	if (retry == retry_count) return ESP_FAIL;
-	return ESP_OK;
-}
+#endif
 
 void app_main(void)
 {
@@ -183,7 +159,10 @@ void app_main(void)
     netbiosns_set_name(MDNS_HOST_NAME);
 
     ESP_ERROR_CHECK(init_fs());
-    // !!! временно спрян докато се намери решение ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html"));
+    
+#ifndef ENABLE_ACME_CLIENT
+    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html"));
+#endif
 
     ESP_LOGI(TAG, "Start my_connect");
     ESP_ERROR_CHECK(my_connect());
@@ -191,28 +170,44 @@ void app_main(void)
     /* Configure the peripheral according to the LED type */
     configure_led();
 
-    if (1) {    // ftp сървър, може да го изключим
-        extern void ftp_task (void *pvParameters);
-        // Create FTP server task
-        xEventTask = xEventGroupCreate();
-        xTaskCreate(ftp_task, "FTP", 1024*6, NULL, tskIDLE_PRIORITY + 2, NULL);
-        // тези отдолу засега не ми трябват, те са за случай на изключване/превключване на ftp 
-        // xEventGroupWaitBits( xEventTask,
-        //         FTP_TASK_FINISH_BIT, /* The bits within the event group to wait for. */
-        //         pdTRUE, /* BIT_0 should be cleared before returning. */
-        //         pdFALSE, /* Don't wait for both bits, either bit will do. */
-        //         portMAX_DELAY);/* Wait forever. */
-        // ESP_LOGE(tag, "ftp_task finish");
-    }
+#ifdef ENABLE_FTP
+    extern void ftp_task (void *pvParameters);
+    // Create FTP server task
+    xEventTask = xEventGroupCreate();
+    xTaskCreate(ftp_task, "FTP", 1024*6, NULL, tskIDLE_PRIORITY + 2, NULL);
+    // тези отдолу засега не ми трябват, те са за случай на изключване/превключване на ftp 
+    // xEventGroupWaitBits( xEventTask,
+    //         FTP_TASK_FINISH_BIT, /* The bits within the event group to wait for. */
+    //         pdTRUE, /* BIT_0 should be cleared before returning. */
+    //         pdFALSE, /* Don't wait for both bits, either bit will do. */
+    //         portMAX_DELAY);/* Wait forever. */
+    // ESP_LOGE(tag, "ftp_task finish");
+#endif
 
     // чака интернет връзка (от тук надолу не работят офлайн)
     while (!fl_connect)
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
+#ifdef ENABLE_SNTP
     // obtain time over NTP
     ESP_LOGI(TAG, "Getting time over NTP.");
-    ret = obtain_time();
-    if(ret != ESP_OK) {
+#define CONFIG_NTP_SERVER "pool.ntp.org"
+    ESP_LOGI(TAG, "Initializing SNTP");
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    ESP_LOGI(TAG, "Your NTP Server is %s", CONFIG_NTP_SERVER);
+    esp_sntp_setservername(0, CONFIG_NTP_SERVER);
+    sntp_set_time_sync_notification_cb(time_sync_notification_cb);
+    esp_sntp_init();
+
+	// wait for time to be set
+	int retry = 0;
+	const int retry_count = 10;
+	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
+		ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
+	}
+
+    if (retry == retry_count) {
         ESP_LOGE(TAG, "Fail to getting time over NTP.");
         while(1) { vTaskDelay(1); }
     }
@@ -229,14 +224,19 @@ void app_main(void)
     localtime_r(&now, &timeinfo);
     strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
     ESP_LOGI(TAG, "The local date/time is: %s", strftime_buf);
+#endif
 
-    if (1) {    // DynDNS, може да го изключим
-        extern void dynamic_dns_set(void);
-        dynamic_dns_set();
-    }
+#ifdef ENABLE_DDNS
+    extern void dynamic_dns_set(void);
+    dynamic_dns_set();
+#endif
 
-    if (1) {    // ACME клиент, може да го изключим
-        extern void acme_client(void);
-        acme_client();
-    }
+#ifdef ENABLE_ACME_CLIENT
+#ifndef ENABLE_SNTP
+#error We need exact time here. (ENABLE_SNTP)
+#endif
+    extern void acme_client(void);
+    acme_client();
+#endif
+
 }

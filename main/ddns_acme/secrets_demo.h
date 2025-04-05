@@ -1,10 +1,26 @@
-ТОВА Е САМО ДЕМОНСТРАЦИЯ НА:
-#include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
+// ТОВА Е САМО ДЕМОНСТРАЦИЯ НА:
+// #include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
 
-ДЕМОТО Е ОТ ТОЗИ РЕД НАДОЛУ (copy&pasete и поправете м/у %%% ... %%%):
-#define WEB_MOUNT_POINT "/littlefs"
+// ДЕМОТО Е ОТ ТОЗИ РЕД НАДОЛУ (copy&paste и поправете м/у %%% ... %%%):
+
+// ### 1 . firmware-upload-ota
+// #define ENABLE_OTA 1
+
+// ### 2 . Dynamic DNS
+// #define ENABLE_DDNS 1
+
+// ### 3 . Добавен ftp сървър
+// #define ENABLE_FTP 1
+
+// ### 4 . Получване на точно време от SNTP сървър
+// #define ENABLE_SNTP 1
+
+// ### 5 . SSL/TLS сертификат
+// #define ENABLE_ACME_CLIENT 1
+
+#define WEB_MOUNT_POINT "/html_fs"
 // може да изберем друга точка виж (/main/ddns_acme/README.md#забележка), или като WEB_MOUNT_POINT
-// #define ACME_MOUNT_POINT "/undefined"
+// #define ACME_MOUNT_POINT "/acme_fs"
 #define ACME_MOUNT_POINT WEB_MOUNT_POINT
 
 // за услугите на ClouDNS
@@ -41,4 +57,4 @@
 // тук трябва да пращат емейл, че изтича сертификата. Но май са спрели да пращат.
 #define CONFIG_EMAIL "test@test-mail.com"
 // за експирименто без него, ако е за реален сертификат с него
-#define CONFIG_DO_PRODUCTION 1
+// #define CONFIG_DO_PRODUCTION 1

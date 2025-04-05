@@ -17,6 +17,8 @@
 
 #include "esp32-wifi-provision-care.h"
 
+#include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
+
 static const char *REST_TAG = "esp-rest";
 static const char *TAG = "ws-server";
 
@@ -275,6 +277,7 @@ static esp_err_t echo_handler(httpd_req_t *req)
 }
 
 // HTTP /
+#ifdef ENABLE_OTA
 static esp_err_t root_get_handler(httpd_req_t *req)
 {
     extern const char wifi_start[] asm("_binary_ota_html_start");
@@ -285,6 +288,7 @@ static esp_err_t root_get_handler(httpd_req_t *req)
     httpd_resp_send(req, wifi_start, wifi_len);
     return ESP_OK;
 }
+#endif
 
 esp_err_t start_rest_server(const char *base_path)
 {
@@ -299,6 +303,7 @@ esp_err_t start_rest_server(const char *base_path)
     ESP_LOGI(REST_TAG, "Starting HTTP Server");
     REST_CHECK(httpd_start(&server, &config) == ESP_OK, "Start server failed", err_start);
 
+#ifdef ENABLE_OTA
     // Set URI handlers
     const httpd_uri_t root_uri = { 
         .uri = "/new_firmware",          
@@ -314,6 +319,7 @@ esp_err_t start_rest_server(const char *base_path)
         .handler = wifi_provision_care_updateota_post_handler 
     };
     httpd_register_uri_handler(server, &updateota_uri);
+#endif
 
     // Registering the ws handler
     httpd_uri_t ws = {

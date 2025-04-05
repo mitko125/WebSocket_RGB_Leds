@@ -37,6 +37,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
 
 
 /********************************************************
@@ -45,9 +46,9 @@
 #define CONFIG_FTP_USER         "admin"
 #define CONFIG_FTP_PASSWORD     "admin"
 // избираме от:
-// #define WEB_MOUNT_POINT "/littlefs"
-// #define ACME_MOUNT_POINT "/undefined"
-#define CONFIG_FTP_BASE_PATH    "/littlefs"
+// WEB_MOUNT_POINT
+// ACME_MOUNT_POINT
+#define CONFIG_FTP_BASE_PATH    ACME_MOUNT_POINT
 
 
 
