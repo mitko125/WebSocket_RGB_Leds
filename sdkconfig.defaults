@@ -22,3 +22,8 @@ CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN=8192
 # това е от забележката към https_server_user_callback
 #
 CONFIG_ESP_TLS_SERVER_MIN_AUTH_MODE_OPTIONAL=y
+#
+# не желаеше да работи с повече от един SSL/TLS клиент при WebSocket
+# не знам как ще е при ESP32 без външна RAM
+#
+CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y

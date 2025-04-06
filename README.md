@@ -53,4 +53,4 @@ curl --data-binary @WebSocket_RGB_Leds.bin http://rgb-leds/updateota
 Полуаване на сертифика, чрез [ACME client](https://letsencrypt.org/docs/client-options/).
 
 Файловете са събрани в [директори](/main/ddns_acme/) и имат [документация](/main/ddns_acme/README.md#получаване-на-ssltls-сертификат-от-lets-encrypt-чрез-acme-клиент).  
-**ПРОБЛЕМИ** при WebSocket трудно се отварят поече от 1 Web Browser, при повече от 1 .../new_firmware няма проблеми.
+**ПРОБЛЕМИ** при WebSocket трудно се отварят поече от 1 Web Browser, при повече от 1 .../new_firmware няма проблеми. Проблема се реши с `CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC=y`.

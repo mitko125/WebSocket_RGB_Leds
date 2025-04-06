@@ -238,9 +238,18 @@ void app_main(void)
 #endif
     have_certificate = acme_client();
 #endif
-    if(have_certificate)    // fttps
-        ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", acme_read_certificate(), acme_read_cert_key()));
-    else    // fttp
-        ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", NULL, NULL));
 
+    const uint8_t *cert = NULL, *cert_key = NULL;
+    if(have_certificate) {    // fttps
+        cert = acme_read_certificate();
+        cert_key = acme_read_cert_key();
+    }
+
+    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", cert, cert_key));
+
+    if (cert != NULL)
+        free((void *)cert);
+    if (cert_key != NULL)
+        free((void *)cert_key);
+    cert = cert_key = NULL;
 }
