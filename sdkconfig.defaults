@@ -9,3 +9,16 @@ CONFIG_HTTPD_WS_SUPPORT=y
 #
 CONFIG_HTTPD_MAX_URI_LEN=1024
 CONFIG_HTTPD_MAX_REQ_HDR_LEN=1024
+
+#
+# without this HTTPS mysteriously doesn't get configured
+#
+CONFIG_ESP_HTTPS_SERVER_ENABLE=y
+#
+# Our certs are too big for 4096
+#
+CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN=8192
+#
+# това е от забележката към https_server_user_callback
+#
+CONFIG_ESP_TLS_SERVER_MIN_AUTH_MODE_OPTIONAL=y

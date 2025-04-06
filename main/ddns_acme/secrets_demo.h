@@ -18,10 +18,17 @@
 // ### 5 . SSL/TLS сертификат
 // #define ENABLE_ACME_CLIENT 1
 
+// диск за интернет сайта
 #define WEB_MOUNT_POINT "/html_fs"
+
+// диск за ACME клиента
 // може да изберем друга точка виж (/main/ddns_acme/README.md#забележка), или като WEB_MOUNT_POINT
-// #define ACME_MOUNT_POINT "/acme_fs"
-#define ACME_MOUNT_POINT WEB_MOUNT_POINT
+#define ACME_MOUNT_POINT "/acme_fs"
+// #define ACME_MOUNT_POINT WEB_MOUNT_POINT
+
+// диск за ftp сървъра
+#define FTP_MOUNT_POINT ACME_MOUNT_POINT
+// #define FTP_MOUNT_POINT WEB_MOUNT_POINT
 
 // за услугите на ClouDNS
 #define DDNS_PROVIDEF 2 // DD_CLOUDNS

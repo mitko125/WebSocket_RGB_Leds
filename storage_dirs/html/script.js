@@ -1,7 +1,10 @@
 "use strict";
 // Complete project details: https://randomnerdtutorials.com/esp32-web-server-websocket-sliders/
 
-let gateway = `ws://${window.location.hostname}/ws`;
+let gateway = `wss://${window.location.hostname}/ws`;
+if (location.protocol !== 'https:')
+    gateway = `ws://${window.location.hostname}/ws`;
+
 let websocket;
 window.addEventListener('load', onload);
 

@@ -24,6 +24,12 @@
  *   THE SOFTWARE.
  */
 
+#include <esp_https_server.h>
+#include "esp_tls.h"
+
+// Проверява дали има валиден сертификат, ако няма създава
+bool acme_client(void);
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -45,11 +45,6 @@
  ********************************************************/
 #define CONFIG_FTP_USER         "admin"
 #define CONFIG_FTP_PASSWORD     "admin"
-// избираме от:
-// WEB_MOUNT_POINT
-// ACME_MOUNT_POINT
-#define CONFIG_FTP_BASE_PATH    ACME_MOUNT_POINT
-
 
 
 

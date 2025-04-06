@@ -8,7 +8,7 @@
 */
 #include <string.h>
 #include <fcntl.h>
-#include "esp_http_server.h"
+#include "esp_https_server.h"
 #include "esp_chip_info.h"
 #include "esp_random.h"
 #include "esp_log.h"
@@ -290,18 +290,107 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 }
 #endif
 
-esp_err_t start_rest_server(const char *base_path)
+static void print_peer_cert_info(const mbedtls_ssl_context *ssl)
+{
+    const mbedtls_x509_crt *cert;
+    const size_t buf_size = 1024;
+    char *buf = calloc(buf_size, sizeof(char));
+    if (buf == NULL) {
+        ESP_LOGE(TAG, "Out of memory - Callback execution failed!");
+        return;
+    }
+
+    // Logging the peer certificate info
+    cert = mbedtls_ssl_get_peer_cert(ssl);
+    if (cert != NULL) {
+        mbedtls_x509_crt_info((char *) buf, buf_size - 1, "    ", cert);
+        ESP_LOGI(TAG, "Peer certificate info:\n%s", buf);
+    } else {
+        ESP_LOGW(TAG, "Could not obtain the peer certificate!");
+    }
+
+    free(buf);
+}
+
+/**
+ * Example callback function to get the certificate of connected clients,
+ * whenever a new SSL connection is created and closed
+ *
+ * Can also be used to other information like Socket FD, Connection state, etc.
+ *
+ * NOTE: This callback will not be able to obtain the client certificate if the
+ * following config `Set minimum Certificate Verification mode to Optional` is
+ * not enabled (enabled by default in this example).
+ *
+ * The config option is found here - Component config → ESP-TLS
+ *
+ */
+static void https_server_user_callback(esp_https_server_user_cb_arg_t *user_cb)
+{
+    ESP_LOGI(TAG, "User callback invoked!");
+    mbedtls_ssl_context *ssl_ctx = NULL;
+    switch(user_cb->user_cb_state) {
+        case HTTPD_SSL_USER_CB_SESS_CREATE:
+            ESP_LOGD(TAG, "At session creation");
+
+            // Logging the socket FD
+            int sockfd = -1;
+            esp_err_t esp_ret;
+            esp_ret = esp_tls_get_conn_sockfd(user_cb->tls, &sockfd);
+            if (esp_ret != ESP_OK) {
+                ESP_LOGE(TAG, "Error in obtaining the sockfd from tls context");
+                break;
+            }
+            ESP_LOGI(TAG, "Socket FD: %d", sockfd);
+            ssl_ctx = (mbedtls_ssl_context *) esp_tls_get_ssl_context(user_cb->tls);
+            if (ssl_ctx == NULL) {
+                ESP_LOGE(TAG, "Error in obtaining ssl context");
+                break;
+            }
+            // Logging the current ciphersuite
+            ESP_LOGI(TAG, "Current Ciphersuite: %s", mbedtls_ssl_get_ciphersuite(ssl_ctx));
+            break;
+
+        case HTTPD_SSL_USER_CB_SESS_CLOSE:
+            ESP_LOGD(TAG, "At session close");
+            // Logging the peer certificate
+            ssl_ctx = (mbedtls_ssl_context *) esp_tls_get_ssl_context(user_cb->tls);
+            if (ssl_ctx == NULL) {
+                ESP_LOGE(TAG, "Error in obtaining ssl context");
+                break;
+            }
+            print_peer_cert_info(ssl_ctx);
+            break;
+        default:
+            ESP_LOGE(TAG, "Illegal state!");
+            return;
+    }
+}
+
+esp_err_t start_rest_server(const char *base_path, const uint8_t *servercert, const uint8_t *prvtkey)
 {
     REST_CHECK(base_path, "wrong base path", err);
     rest_server_context_t *rest_context = calloc(1, sizeof(rest_server_context_t));
     REST_CHECK(rest_context, "No memory for rest context", err);
     strlcpy(rest_context->base_path, base_path, sizeof(rest_context->base_path));
 
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.uri_match_fn = httpd_uri_match_wildcard;
+    httpd_ssl_config_t config = HTTPD_SSL_CONFIG_DEFAULT();
+    config.httpd.uri_match_fn = httpd_uri_match_wildcard;
+    config.user_cb = https_server_user_callback;
 
-    ESP_LOGI(REST_TAG, "Starting HTTP Server");
-    REST_CHECK(httpd_start(&server, &config) == ESP_OK, "Start server failed", err_start);
+    if (servercert && prvtkey) {
+        config.servercert = servercert;
+        config.servercert_len = strlen((const char *)servercert) + 1;
+
+        config.prvtkey_pem = prvtkey;
+        config.prvtkey_len = strlen((const char *)prvtkey) + 1;
+        ESP_LOGI(REST_TAG, "Starting HTTPS Server");
+    } else {
+        config.transport_mode = HTTPD_SSL_TRANSPORT_INSECURE;
+        ESP_LOGI(REST_TAG, "Starting HTTP Server");
+    }
+
+    REST_CHECK(httpd_ssl_start(&server, &config) == ESP_OK, "Start server failed", err_start);
 
 #ifdef ENABLE_OTA
     // Set URI handlers

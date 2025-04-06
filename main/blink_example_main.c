@@ -22,6 +22,7 @@
 
 #include "my_connect.h"
 #include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
+#include "acmec_c.h"
 
 static const char *TAG = "main";
 
@@ -31,7 +32,7 @@ static const char *TAG = "main";
 EventGroupHandle_t xEventTask;
 int FTP_TASK_FINISH_BIT = BIT2;
 
-extern esp_err_t start_rest_server(const char *base_path);
+extern esp_err_t start_rest_server(const char *base_path, const uint8_t *servercert, const uint8_t *prvtkey);
 
 static led_strip_handle_t led_strip;
 
@@ -142,6 +143,9 @@ static void time_sync_notification_cb(struct timeval *tv)
 
 void app_main(void)
 {
+    // омръзна ми да замърсяват лога
+    esp_log_level_set("wifi_init", ESP_LOG_WARN);
+    esp_log_level_set("wifi", ESP_LOG_WARN);
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -160,10 +164,6 @@ void app_main(void)
 
     ESP_ERROR_CHECK(init_fs());
     
-#ifndef ENABLE_ACME_CLIENT
-    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html"));
-#endif
-
     ESP_LOGI(TAG, "Start my_connect");
     ESP_ERROR_CHECK(my_connect());
 
@@ -231,12 +231,16 @@ void app_main(void)
     dynamic_dns_set();
 #endif
 
+    bool have_certificate = false;
 #ifdef ENABLE_ACME_CLIENT
 #ifndef ENABLE_SNTP
 #error We need exact time here. (ENABLE_SNTP)
 #endif
-    extern void acme_client(void);
-    acme_client();
+    have_certificate = acme_client();
 #endif
+    if(have_certificate)    // fttps
+        ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", acme_read_certificate(), acme_read_cert_key()));
+    else    // fttp
+        ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", NULL, NULL));
 
 }
