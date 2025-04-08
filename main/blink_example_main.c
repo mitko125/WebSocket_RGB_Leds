@@ -252,4 +252,22 @@ void app_main(void)
     if (cert_key != NULL)
         free((void *)cert_key);
     cert = cert_key = NULL;
+
+#ifdef ENABLE_ACME_CLIENT
+    while (1) {
+        // проверява дали не е изтекъл ACME сертификата и го обновява 31 дена преди изтичането.
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        if (acme_loop(tv.tv_sec)) {
+            ESP_LOGI(TAG, "Certificate got updated, must restart secure web server");
+            // тук трябва да рестартирам WebServer, но ми е по-удобно ресет. Можи да си го позволим на 2 месеца.
+            vTaskDelay(pdMS_TO_TICKS(10000));
+            esp_restart();
+        }
+        // тука може и да е 24 часа, но понеже е на 2 стъпки (първо създава заявка а после проверява и ако е o'k
+        // изрегля сертификата). Така едобре , до 1min ше получим обновление, ако сме проспали и няма да 
+        // досаждаме (техния пример е на 200mS)
+        vTaskDelay(pdMS_TO_TICKS(60 * 1000));
+    }
+#endif
 }

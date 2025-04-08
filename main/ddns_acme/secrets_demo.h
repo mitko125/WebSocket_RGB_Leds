@@ -29,6 +29,8 @@
 // диск за ftp сървъра
 #define FTP_MOUNT_POINT ACME_MOUNT_POINT
 // #define FTP_MOUNT_POINT WEB_MOUNT_POINT
+#define CONFIG_FTP_USER         "admin"
+#define CONFIG_FTP_PASSWORD     "admin"
 
 // за услугите на ClouDNS
 #define DDNS_PROVIDEF 2 // DD_CLOUDNS

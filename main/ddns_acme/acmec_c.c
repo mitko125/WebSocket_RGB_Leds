@@ -13,9 +13,9 @@ static const char *TAG = "acmec_c.c";
 
 bool acme_client(void)
 {
-    esp_log_level_set(TAG, ESP_LOG_VERBOSE);
-    esp_log_level_set("acme_c.cpp", ESP_LOG_VERBOSE);
-    esp_log_level_set("Acme", ESP_LOG_VERBOSE);
+    // esp_log_level_set(TAG, ESP_LOG_VERBOSE);
+    // esp_log_level_set("acme_c.cpp", ESP_LOG_VERBOSE);
+    // esp_log_level_set("Acme", ESP_LOG_VERBOSE);
 
     ESP_LOGI(TAG, "Start ACME client");
     bool have_certificate = false;
@@ -49,6 +49,7 @@ bool acme_client(void)
         } else {
             ESP_LOGE(TAG, "%s: we don't have a valid cert", __FUNCTION__);
 
+            // долните 3 реда могат да се махнат, когато сте готови
             ESP_LOGE(TAG, "Ако четеш това може с ftp да копираш изправен 'staging' или 'production'.");
             ESP_LOGE(TAG, "Или закоментирай 'return false;' на долния ред.");
             return false;
@@ -69,6 +70,8 @@ bool acme_client(void)
             acme_set_webserver(simplews);
 
             // Simplistic loop - keep going until we get a cert, then start secure webserver
+            // може да излезем по брояч и да минем на http
+            int cou = 0;
             while (!acme_have_valid_certificate()) {
                 struct timeval tv;
                 gettimeofday(&tv, 0);
@@ -77,7 +80,8 @@ bool acme_client(void)
                     // Aha, we do have one now
                     // Note : leak
                     have_certificate = true;
-                }
+                } else
+                    ESP_LOGE(TAG, "Unsuccessful attempt to obtain certificate #%d", ++cou);
                 vTaskDelay(pdMS_TO_TICKS(10000)); // Don't retry too quickly, this is 10s (very quick)
             }
             acme_stop_webserver();
