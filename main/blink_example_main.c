@@ -174,7 +174,7 @@ void app_main(void)
     extern void ftp_task (void *pvParameters);
     // Create FTP server task
     xEventTask = xEventGroupCreate();
-    xTaskCreate(ftp_task, "FTP", 1024*6, NULL, tskIDLE_PRIORITY + 2, NULL);
+    xTaskCreate(ftp_task, "FTP", 4095 * 2, NULL, tskIDLE_PRIORITY + 2, NULL);
     // тези отдолу засега не ми трябват, те са за случай на изключване/превключване на ftp 
     // xEventGroupWaitBits( xEventTask,
     //         FTP_TASK_FINISH_BIT, /* The bits within the event group to wait for. */

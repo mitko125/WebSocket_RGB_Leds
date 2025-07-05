@@ -27,6 +27,18 @@ IP то на рутера узнавам от [api.ipify.org](https://api.ipify.
 
 Използва се [ACME клиент](https://components.espressif.com/components/dannybackx/acmeclient/versions/0.1.0).
 
+### **ВАЖНО:**
+
+Спазете препръката:
+
+```text
+Build notes :
+- you may have to augment default stack sizes such as
+    CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE=6144
+    CONFIG_MAIN_TASK_STACK_SIZE=6144
+  in the ESP-IDF "make menuconfig".
+```
+
 ### **ЗАБЕЛЕЖКА:**
 
 Понеже `FLASH_IN_PROJECT` в `CMakeLists.txt` изтрива целия `storage`, изграждаме допълнителен `storage1`, където `ACME клиента` да записва сертификатите си, без да се изтриват. Избира се с `#define ACME_MOUNT_POINT` и губим 100K flash. Другата опция е без `FLASH_IN_PROJECT`, ако както в случая е завършила разработката на html файловете. Избирам втория вариант и с готови сертификати и html файлове си играя през `ftp`. Всичко това може да се реши и през `Konfig` (за ACME [пример1](/managed_components/dannybackx__acmeclient/examples/standalone/main/Kconfig), [пример2](/managed_components/dannybackx__acmeclient/examples/framework/main/Kconfig) са добри), но това е учебен проект.
