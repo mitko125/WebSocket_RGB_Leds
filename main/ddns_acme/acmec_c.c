@@ -66,6 +66,7 @@ bool acme_client(void)
             acme_create_new_account();
             acme_create_new_order();
 
+            // !!! да се направи и при обновяване на серитфика проблем #3
             httpd_handle_t simplews = acme_start_webserver();
             acme_set_webserver(simplews);
 
@@ -84,6 +85,7 @@ bool acme_client(void)
                     ESP_LOGE(TAG, "Unsuccessful attempt to obtain certificate #%d", ++cou);
                 vTaskDelay(pdMS_TO_TICKS(10000)); // Don't retry too quickly, this is 10s (very quick)
             }
+            // !!! да се направи и при обновяване на серитфика проблем #3
             acme_stop_webserver();
         }
     }
