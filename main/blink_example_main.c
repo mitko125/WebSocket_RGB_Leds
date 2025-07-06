@@ -32,7 +32,8 @@ static const char *TAG = "main";
 EventGroupHandle_t xEventTask;
 int FTP_TASK_FINISH_BIT = BIT2;
 
-extern esp_err_t start_rest_server(const char *base_path, const uint8_t *servercert, const uint8_t *prvtkey);
+extern void StartWebServer(bool have_certificate);
+extern void stop_rest_server(void);
 
 static led_strip_handle_t led_strip;
 
@@ -239,35 +240,27 @@ void app_main(void)
     have_certificate = acme_client();
 #endif
 
-    const uint8_t *cert = NULL, *cert_key = NULL;
-    if(have_certificate) {    // fttps
-        cert = acme_read_certificate();
-        cert_key = acme_read_cert_key();
-    }
+    StartWebServer(have_certificate);
 
-    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", cert, cert_key));
-
-    if (cert != NULL)
-        free((void *)cert);
-    if (cert_key != NULL)
-        free((void *)cert_key);
-    cert = cert_key = NULL;
-
-#ifdef ENABLE_ACME_CLIENT
-    while (1) {
-        // проверява дали не е изтекъл ACME сертификата и го обновява 31 дена преди изтичането.
-        struct timeval tv;
-        gettimeofday(&tv, 0);
-        if (acme_loop(tv.tv_sec)) {
-            ESP_LOGI(TAG, "Certificate got updated, must restart secure web server");
-            // тук трябва да рестартирам WebServer, но ми е по-удобно ресет. Можи да си го позволим на 2 месеца.
-            vTaskDelay(pdMS_TO_TICKS(10000));
-            esp_restart();
+    while (true) {
+        vTaskDelay(pdMS_TO_TICKS(100));
+        int c = getchar();
+        if (c > 0) {
+            // за проби дали изтича памет при презапускане на http/https сървъри
+            switch (c) {
+            case 'h':
+            case 'H':
+                ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
+                break;
+            case 'r':
+            case 'R':
+                stop_rest_server();
+                StartWebServer(have_certificate);
+                break;
+            default:
+                ESP_LOGI(TAG, "h - heap, r - restart web server");
+                break;
+            }
         }
-        // тука може и да е 24 часа, но понеже е на 2 стъпки (първо създава заявка а после проверява и ако е o'k
-        // изрегля сертификата). Така едобре , до 1min ше получим обновление, ако сме проспали и няма да 
-        // досаждаме (техния пример е на 200mS)
-        vTaskDelay(pdMS_TO_TICKS(60 * 1000));
     }
-#endif
 }

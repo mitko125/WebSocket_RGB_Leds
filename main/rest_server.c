@@ -18,6 +18,7 @@
 #include "esp32-wifi-provision-care.h"
 
 #include "secrets.h"    // вместо Konfig, ако липсва виж "secrets_demo.h"
+#include "acmec_c.h"
 
 static const char *REST_TAG = "esp-rest";
 static const char *TAG = "ws-server";
@@ -367,10 +368,12 @@ static void https_server_user_callback(esp_https_server_user_cb_arg_t *user_cb)
     }
 }
 
-esp_err_t start_rest_server(const char *base_path, const uint8_t *servercert, const uint8_t *prvtkey)
+static rest_server_context_t *rest_context = NULL;
+
+static esp_err_t start_rest_server(const char *base_path, const uint8_t *servercert, const uint8_t *prvtkey)
 {
     REST_CHECK(base_path, "wrong base path", err);
-    rest_server_context_t *rest_context = calloc(1, sizeof(rest_server_context_t));
+    rest_context = calloc(1, sizeof(rest_server_context_t));
     REST_CHECK(rest_context, "No memory for rest context", err);
     strlcpy(rest_context->base_path, base_path, sizeof(rest_context->base_path));
 
@@ -435,4 +438,33 @@ err_start:
     free(rest_context);
 err:
     return ESP_FAIL;
+}
+
+void StartWebServer(bool have_certificate)
+{
+    const uint8_t *cert = NULL, *cert_key = NULL;
+    if(have_certificate) {    // fttps
+        cert = acme_read_certificate();
+        cert_key = acme_read_cert_key();
+    }
+
+    ESP_ERROR_CHECK(start_rest_server(WEB_MOUNT_POINT "/html", cert, cert_key));
+
+    if (cert != NULL)
+        free((void *)cert);
+    if (cert_key != NULL)
+        free((void *)cert_key);
+}
+
+void stop_rest_server(void)
+{
+    if (server) {
+        ESP_LOGI(REST_TAG, "Stop HTTP/HTTPS Server");
+        httpd_ssl_stop(server);
+        server = NULL;
+        if (rest_context) {
+            free(rest_context);
+            rest_context = NULL;
+        }
+    }
 }
