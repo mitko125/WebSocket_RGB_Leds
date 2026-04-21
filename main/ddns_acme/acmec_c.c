@@ -118,7 +118,7 @@ bool acme_client(void)
             // долните 3 реда могат да се махнат, когато сте готови
             ESP_LOGE(TAG, "Ако четеш това може с ftp да копираш изправен 'staging' или 'production'.");
             ESP_LOGE(TAG, "Или закоментирай 'return false;' на долния ред.");
-            return false;
+            // return false;
 
             if (acme_get_account_key() == 0) {
                 ESP_LOGI(TAG, "generate account key");
