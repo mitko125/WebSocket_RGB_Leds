@@ -151,9 +151,9 @@ static const uint8_t *_acme_read_account_key()
 {
     int len;
 #ifdef CONFIG_DO_PRODUCTION
-    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/production/account.pem", &len);
+    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "production/account.pem", &len);
 #else
-    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/staging/account.pem", &len);
+    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "staging/account.pem", &len);
 #endif
     return (const uint8_t *)r;
 }
@@ -162,9 +162,9 @@ static const uint8_t *_acme_read_certificate()
 {
     int len;
 #ifdef CONFIG_DO_PRODUCTION
-    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/production/certificate.pem", &len);
+    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "production/certificate.pem", &len);
 #else
-    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/staging/certificate.pem", &len);
+    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "staging/certificate.pem", &len);
 #endif
     return (const uint8_t *)r;
 }
@@ -173,9 +173,9 @@ static const uint8_t *_acme_read_cert_key()
 {
     int len;
 #ifdef CONFIG_DO_PRODUCTION
-    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/production/certkey.pem", &len);
+    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "production/certkey.pem", &len);
 #else
-    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/staging/certkey.pem", &len);
+    const uint8_t *r = ac->ReadFile(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "staging/certkey.pem", &len);
 #endif
     return (const uint8_t *)r;
 }

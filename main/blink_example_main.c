@@ -148,6 +148,17 @@ void app_main(void)
     esp_log_level_set("wifi_init", ESP_LOG_WARN);
     esp_log_level_set("wifi", ESP_LOG_WARN);
 
+    // Това работи само при: Component config/Log output/Maximum log verbosity = Verbose
+    //      CONFIG_LOG_MAXIMUM_LEVEL_VERBOSE=y
+    // esp_log_level_set("esp-rest", ESP_LOG_DEBUG);
+    // esp_log_level_set("ws-server", ESP_LOG_DEBUG);
+
+    // esp_log_level_set("httpd_ws", ESP_LOG_VERBOSE);
+    // esp_log_level_set("httpd", ESP_LOG_VERBOSE);
+    // esp_log_level_set("httpd_sess", ESP_LOG_VERBOSE);
+
+    // esp_log_level_set("esp_https_server", ESP_LOG_VERBOSE);
+
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());

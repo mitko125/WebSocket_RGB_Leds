@@ -39,6 +39,7 @@
 
 #if DDNS_PROVIDEF == 2  // DD_CLOUDNS
 
+#define PROVIDER_NAME "ClouDNS/"
 // хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
 #define CONFIG_URL "it doesn't matter" //"iot.dns-cloud.net" няма значение при ClouDNS, но при ACME client е важно
 
@@ -53,6 +54,7 @@
 
 #elif DDNS_PROVIDEF == 1    // DD_NOIP
 
+#define PROVIDER_NAME "NoIP/"
 // хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
 #define CONFIG_URL "вашия.hopto.org"
 
@@ -66,4 +68,4 @@
 // тук трябва да пращат емейл, че изтича сертификата. Но май са спрели да пращат.
 #define CONFIG_EMAIL "test@test-mail.com"
 // за експирименто без него, ако е за реален сертификат с него
-// #define CONFIG_DO_PRODUCTION 1
+#define CONFIG_DO_PRODUCTION 1

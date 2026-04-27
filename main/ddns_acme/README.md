@@ -41,7 +41,7 @@ Build notes :
 
 ### **ЗАБЕЛЕЖКА:**
 
-Понеже `FLASH_IN_PROJECT` в `CMakeLists.txt` изтрива целия `storage`, изграждаме допълнителен `storage1`, където `ACME клиента` да записва сертификатите си, без да се изтриват. Избира се с `#define ACME_MOUNT_POINT` и губим 100K flash. Другата опция е без `FLASH_IN_PROJECT`, ако както в случая е завършила разработката на html файловете. Избирам втория вариант и с готови сертификати и html файлове си играя през `ftp`. Всичко това може да се реши и през `Konfig` (за ACME [пример1](/managed_components/dannybackx__acmeclient/examples/standalone/main/Kconfig), [пример2](/managed_components/dannybackx__acmeclient/examples/framework/main/Kconfig) са добри), но това е учебен проект.
+Понеже `FLASH_IN_PROJECT` в `CMakeLists.txt` изтрива целия `storage`, изграждаме допълнителен `storage1`, където `ACME клиента` да записва сертификатите си, без да се изтриват. Избира се с `#define ACME_MOUNT_POINT` и губим 500K flash. Другата опция е без `FLASH_IN_PROJECT`, ако както в случая е завършила разработката на html файловете. Избирам втория вариант и с готови сертификати и html файлове си играя през `ftp`. Всичко това може да се реши и през `Konfig` (за ACME [пример1](/managed_components/dannybackx__acmeclient/examples/standalone/main/Kconfig), [пример2](/managed_components/dannybackx__acmeclient/examples/framework/main/Kconfig) са добри), но това е учебен проект.
 
 1. Ползван е [пример1](https://sourceforge.net/p/esp32-acme-client/code/HEAD/tree/trunk/examples/standalone/), като е отрязана `DynDNS` частта. Файловете `acmec.*` са поизрязани и преименувани в `acmec_c.*`. Добавен е и `acmec_c.c`, където е преобразувана оригинална логика от примера.
 2. Преобразуваме `start_rest_server(...)` да работи като `start_webserver(..)` от горния `пример`. Това доведе до промени в `script.js` и трябва да се внимава с горната `ЗАБЕЛЕЖКА`. Вече сайта работи по `http` и `https`, в зависимост от наличието на сертификати.
@@ -54,3 +54,5 @@ Build notes :
 `ВНИМАНИЕ` Ей това `static int process_count = 5;` в `Acme.cpp` означава до 6 сполучливи или не, получен/удължен серификата на 1 вкючване. Ако всчко е наред, не пречи (това е 1 година без ресет).  
 
 Успях да изчакам докато сертификата изтече (повече от 3 месеца без пускане на платката). Тогава сертификата не се удължи. Наложи се изтриване чрез ftp на production и ресетване, изкара чисто нов сертификат.
+
+При много игра със сертификати, май не се обновяват нови и стари в компютъра. Трябва да се внимава кой избираме когато ни пита, иначе се самооправя след до няколко дни.

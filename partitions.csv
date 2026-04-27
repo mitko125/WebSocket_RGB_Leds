@@ -6,5 +6,5 @@ phy_init, data, phy,        0xf000,  0x1000
 factory,  app,  factory,    0x10000, 4M
 ota_0,    app,  ota_0,      ,        4M
 ota_1,    app,  ota_1,      ,        4M
-storage,  data, littlefs,   ,        3932K 
-storage1, data, undefined,  ,        100K 
+storage,  data, littlefs,   ,        3532K 
+storage1, data, undefined,  ,        500K 

@@ -89,9 +89,9 @@ bool acme_client(void)
         acme_init(); // Without this, also not allowed to call have_valid_certificate()
         acme_set_fs_prefix(ACME_MOUNT_POINT);
 #ifdef CONFIG_DO_PRODUCTION
-        acme_set_filename_prefix(ACME_MOUNT_POINT "/acme/production");
+        acme_set_filename_prefix(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "production");
 #else
-        acme_set_filename_prefix(ACME_MOUNT_POINT "/acme/staging");
+        acme_set_filename_prefix(ACME_MOUNT_POINT "/acme/" PROVIDER_NAME "staging");
 #endif
 
         acme_set_account_filename("account.json");
