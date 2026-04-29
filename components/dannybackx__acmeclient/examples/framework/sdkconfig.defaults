@@ -1,0 +1,36 @@
+#
+# SNTP should be able to work from DHCP if we choose that, and have several servers
+#
+CONFIG_LWIP_SNTP_MAX_SERVERS=4
+CONFIG_LWIP_DHCP_GET_NTP_SRV=y
+CONFIG_LWIP_DHCP_MAX_NTP_SERVERS=4
+CONFIG_LWIP_SNTP_UPDATE_DELAY=3600000
+#
+# without this HTTPS mysteriously doesn't get configured
+#
+CONFIG_ESP_HTTPS_SERVER_ENABLE=y
+#
+# Our certs are too big for 4096
+#
+CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN=8192
+#
+# Configuration file location
+#
+CONFIG_BASE_PATH="/fs/config"
+CONFIG_CONFIG_FN="config.json"
+#
+# Time zone info for most of Europe
+#
+CONFIG_DEFAULT_TIMEZONE="CET-1CEST,M3.5.0/2,M10.5.0/3"
+#
+# Authenticate via certificates by default
+#
+CONFIG_CERTIFICATE_AUTHENTICATION=y
+#
+# Have more sockets
+#
+CONFIG_LWIP_MAX_SOCKETS=16
+#
+# Acme needs a lot
+#
+CONFIG_ACME_STACKSIZE=24000

@@ -1,0 +1,54 @@
+I (00:00:00.092) main_task: Started on CPU0
+I (00:00:00.103) main_task: Calling app_main()
+I (00:00:00.119) app_main: Mounting littlefs at /fs
+I (00:00:00.152) phy_init: phy_version 4780,16b31a7,Sep 22 2023,20:42:16
+I (00:00:03.925) example: connect_handler: address 192.168.x.yyy
+I (11:07:57.136) example: app_main: DynDNS update ok (alarm.my.domain)
+I (11:07:57.138) example: Starting local ftp server
+I (11:07:57.145) Acme: ReadCertificate(/fs/acme/staging/certificate.pem)
+E (11:07:57.155) example: app_main: we don't have a valid cert
+E (11:07:57.163) Acme: ReadPrivateKey: mbedtls_pk_parse_keyfile(/fs/acme/staging/account.pem) failed PK - Read/write of file failed (0x3e00)
+I (11:07:57.168) example: generate account key
+I (11:07:57.173) Acme: Generating private key ...
+I (11:07:58.619) Acme: WritePrivateKey: wrote private key to /fs/acme/staging/account.pem
+E (11:07:58.627) Acme: ReadPrivateKey: mbedtls_pk_parse_keyfile(/fs/acme/staging/certkey.pem) failed PK - Read/write of file failed (0x3e00)
+I (11:07:58.631) Acme: Generating private key ...
+I (11:08:07.839) Acme: WritePrivateKey: wrote private key to /fs/acme/staging/certkey.pem
+I (11:08:07.840) example: generate certificate key
+I (11:08:07.843) Acme: Querying directory at https://acme-staging-v02.api.letsencrypt.org/directory
+I (11:08:10.533) Acme: CreateNewAccount: start
+I (11:08:10.535) Acme: CreateNewAccount: check whether account already exists
+E (11:08:12.583) Acme: JSON status "status" -> 400, detail No account exists with the provided key, type urn:ietf:params:acme:error:accountDoesNotExist
+E (11:08:12.588) Acme: RequestNewAccount: null reply_status (reply {
+  "type": "urn:ietf:params:acme:error:accountDoesNotExist",
+  "detail": "No account exists with the provided key",
+  "status": 400
+})
+I (11:08:12.607) Acme: CreateNewAccount: creating account me@myself.org ...
+I (11:08:14.428) Acme: CreateNewAccount: success : account me@myself.org created
+I (11:08:14.460) Acme: Writing account info into /fs/acme/staging/account.json
+I (11:08:14.484) Acme: CreateNewOrder()
+I (11:08:14.489) Acme: ReadOrderInfo(fn /fs/acme/staging/order.json)
+I (11:08:14.498) Acme: RequestNewOrder (alarm.my.domain)
+I (11:08:16.323) Acme: ReadOrder()
+I (11:08:26.521) Acme: ValidateOrder
+I (11:08:26.523) Acme: DownloadAuthorizationResource
+I (11:08:28.246) Acme: EnableLocalWebServer(/.well-known/acme-challenge/oBv2sSenxkErqWRcF4pWpKiBidyeA_VYsv_oSwB0UAA)
+I (11:08:28.247) Acme: ValidateAlertServer
+I (11:08:30.044) Acme: AcmeProcess: ValidateOrder -> pending
+I (11:08:40.101) Acme: GetOrderStatus
+I (11:08:41.913) Acme: FinalizeOrder(https://acme-staging-v02.api.letsencrypt.org/acme/finalize/134938463/14175554273)
+I (11:08:41.915) Acme: GenerateCSR()
+I (11:08:47.551) Acme: GetOrderStatus
+I (11:08:49.375) Acme: DownloadCertificate(https://acme-staging-v02.api.letsencrypt.org/acme/cert/2b4db851f60f682ac8d942ff602adb164959)
+I (11:08:51.193) Acme: DisableLocalWebServer: disabled local web server
+I (11:08:51.360) Acme: ReadCertificate(/fs/acme/staging/certificate.pem)
+I (11:08:51.626) Acme: ReadCertificate: we have a certificate in /fs/acme/staging/certificate.pem
+I (11:08:51.627) Acme: Valid from 2024-02-03 09:08:44 to 2024-05-03 09:08:43
+I (11:08:51.964) Acme: ReadFile: read from /fs/acme/staging/certificate.pem, len 5698
+I (11:08:52.005) Acme: ReadFile: read from /fs/acme/staging/certkey.pem, len 1679
+I (11:08:52.006) example: Starting server
+I (11:08:52.008) esp_https_server: Starting server
+I (11:08:52.017) esp_https_server: Server listening on port 443
+I (11:08:52.020) example: Registering URI handlers
+I (11:09:02.121) main_task: Returned from app_main()

@@ -1,0 +1,13 @@
+description: This is an ACME client for ESP (ESP32, etc) devices, so your IoT can
+  fetch their own certificate for secure communication. ACME is a protocol (see <a
+  href="https://tools.ietf.org/html/rfc8555">RFC8555</a>) for automatic certificate
+  management. Sites such as letsencrypt.org allow you to obtain free (no charge) certificates
+  in an automated way using the ACME protocol.
+files:
+  exclude:
+  - '*~'
+  - '*-'
+  - '*.old'
+  - WARNING
+url: https://sourceforge.net/projects/esp32-acme-client/
+version: 0.1.0

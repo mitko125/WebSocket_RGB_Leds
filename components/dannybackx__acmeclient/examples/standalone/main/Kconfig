@@ -1,0 +1,31 @@
+menu "Acmeclient standalone example"
+
+  config URL
+    string "Name of this node (FQDN)"
+    default "iot.dns-cloud.net"
+
+  config EMAIL
+    string "Email address for requesting a certificate"
+    default "me@myself.org"
+
+  config ACME_FILENAME_PREFIX
+    string "Filename prefix"
+    default "/acme"
+
+  config DYNDNS_AUTH
+    string "Authentication at our dyndns provider"
+    default ""
+
+  config DO_FTPSERVER
+    boolean "Do we run an ftp server"
+    default no
+
+  config DO_PRODUCTION
+    boolean "Do we run against the production (rate-limited) ACME server (no -> staging, not rate limited)"
+    default no
+  
+  config DEFAULT_TIMEZONE
+    string "Timezone you are in"
+    default "CET-1CEST,M3.5.0/2,M10.5.0/3"
+
+endmenu

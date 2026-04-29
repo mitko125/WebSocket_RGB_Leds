@@ -1,0 +1,5 @@
+Make this work in C and C++.
+--This line, and those below, will be ignored--
+
+M    ftpserver/ftpserv.cpp
+M    ftpserver/ftpserv.h

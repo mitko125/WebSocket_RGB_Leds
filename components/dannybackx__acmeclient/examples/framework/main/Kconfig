@@ -1,0 +1,264 @@
+menu "Minimal application framework"
+  config HAVE_ACME
+    bool "Do we run ACME"
+    default true
+
+  config NODE_NAME
+    string "Name of this node"
+    default "iot"
+
+  config BASE_PATH
+    string "Path to access littlefs filesystem"
+    default "/fs"
+
+  config NTP_SERVER_0
+    string "FQDN of primary NTP (time) server"
+    default "pool.ntp.org"
+    help
+      Name of primary NTP server
+
+  config NTP_SERVER_1
+    string "FQDN of backup NTP (time) server"
+    default "time.google.com"
+    help
+      Name of backup NTP server
+
+  config PRESET_IP
+    bool "Do we provide fixed IP information"
+    default false
+
+  config PRESET_IP_ADDR
+    string "Fixed IP address for this node, if desired"
+    default "192.168.0.205"
+    help
+      If applicable, fixed ip address for this node
+
+  config PRESET_IP_NETMASK
+    string "Network mask, if specifying a fixed IP address"
+    default "255.255.255.0"
+    help
+      Subnet mask
+
+  config PRESET_IP_GW
+    string "Default router, if specifying a fixed IP address"
+    default "192.168.0.1"
+    help
+      Default router
+
+  config PRESET_IP_DNS
+    string "DNS server, if specifying a fixed IP address"
+    default "192.168.0.1"
+    help
+      Name server
+
+  config BLACKLIST_IP_1
+    string "IP address of a locally blacklisted node"
+    default "192.168.0.1"
+
+  config BLACKLIST_IP_2
+    string "IP address of a locally blacklisted node"
+    default "192.168.0.1"
+
+  config BLACKLIST_IP_3
+    string "IP address of a locally blacklisted node"
+    default "192.168.0.1"
+
+  config BLACKLIST_IP_4
+    string "IP address of a locally blacklisted node"
+    default "192.168.0.1"
+
+  config WHITELIST_IP
+    string "IP address of a locally whitelisted range"
+    default "192.168.0.1"
+
+  config WHITELIST_RANGE
+    int "Number of bits of network address of a locally whitelisted range"
+    default 24
+
+  config TCPSERVER_PORT
+    int "TCP port for inter-node communication"
+    default 23456
+
+  config REDIRECT_LOG_TO_FILE
+    bool "Do we redirect logging to a file"
+    default false
+
+  config REDIRECT_LOG_TO_FILE_NAME
+    string "File on LittleFS to redirect logs to"
+    default "/fs/log"
+
+  config ENABLE_FTPSERVER
+    bool "Start a local FTP server"
+    default true
+
+  config LCD_BACKLIGHT_CHANNEL
+    int "Channel for LEDC PWM backlight"
+    default 1
+
+  config LCD_BACKLIGHT_FREQUENCY
+    int "Frequency for LEDC PWM backlight"
+    default 25000
+
+  config LCD_BACKLIGHT_TIMER
+    int "Esp32 timer number for LCD backlight"
+    default 0
+
+  config LCD_BACKLIGHT_DEFAULT_LEVEL
+    int "Default brightness level for LCD backlight"
+    default 50
+
+  config LCD_BACKLIGHT_SCREENSAVER_LEVEL
+    int "Screensaver brightness level for LCD backlight"
+    default 20
+
+  config LCD_BACKLIGHT_SCREENSAVER_TIMEOUT
+    int "Time before screensaver kicks in (seconds)"
+    default 20
+
+  config LCD_LVGL_DRAW_BUFFER_SIZING
+    int "Multiplier for LVGL draw buffer sizing"
+    default 100
+
+  config TLS_SESSIONS
+    int "Number of supported TLS sessions"
+    default 4
+
+  config DEFAULT_TIMEZONE
+    string "Default timezone string"
+    default "CET-1CEST,M3.5.0/2,M10.5.0/3"
+
+  config OTA_URL_SUFFIX
+    string "URL suffix for OTA"
+    default "/update"
+
+  config LCD_UNLOCK_TIMEOUT
+    int "Timeout in seconds until keypad locks again"
+    default 60
+
+  config LCD_TYPING_TIMEOUT
+    int "Timeout while typing the unlock code"
+    default 5
+
+  config RUN_DYNDNS
+    bool "Whether to run dynamic DNS to identify ourselves on the Internet"
+    default false
+
+  config DYNDNS_DEVICE_URL
+    string "URL of this device"
+    default "iot.mydomain.org"
+
+  config DYNDNS_AUTH
+    string "Auth code for e.g. cloudns.net"
+    default "yow"
+
+  config UNLOCK_CODE
+    int "Unlock code"
+    default 123456
+
+  config ACME_FILENAME_PREFIX
+    string "prefix for ACME directory"
+    default "/acme"
+
+  config MODULE_TYPE
+    string "Hardware type"
+    default "ZX AR"
+
+  config RUN_HTTPS_SERVER
+    bool "Do we run a secure webserver"
+    default false
+
+  config HTTPS_SERVER_PORT
+    int "TCP port for the secure webserver"
+    default 443
+
+  config CLIENT_CERTIFICATES
+    string "List of CN names that are allowed access. (This is our security model.)"
+    default ""
+
+  config CERTKEY_FILENAME
+    string "File name on local storage where our certificate private key is stored"
+    default "certkey.pem"
+
+  config CERTIFICATE_FILENAME
+    string "File name on local storage where our certificate is stored"
+    default "certificate.pem"
+
+  config HTTP_SERVER_PORT
+    int "TCP port for the regular webserver"
+    default 80
+
+  config HAVE_OLED
+    bool "Whether we have an OLED display on this device"
+    default false
+
+  config HAVE_WHATSAPP
+    bool "Whether we can send WhatsApp messages"
+    default false
+
+  config CONNECT_WIFI_CONN_MAX_RETRY
+    int "Maximum retry"
+    default 3
+    help
+      Set the Maximum retry to avoid station reconnecting to the AP unlimited,
+      in case the AP is really inexistent.
+      Note this is *per SSID* so we may do a lot more retries in total.
+
+  config CONNECT_WIFI_SCAN_RSSI_THRESHOLD
+    int "WiFi minimum rssi"
+    range -127 0
+
+    default -127
+    help
+      The minimum rssi to accept in the scan mode.
+
+  config CONNECT_WIFI_SSID
+    string "SSID of your main WiFi network"
+    default "my ssid"
+
+  config CONNECT_WIFI_PASSWORD
+    string "Password of your main WiFi network"
+    default "pass"
+
+  config CONNECT_WIFI_2
+    bool "Configure a secondary SSID to connect to"
+    default n
+
+  if CONNECT_WIFI_2
+    config CONNECT_WIFI_2_SSID
+      string "SSID of your secondary WiFi network"
+      default "my ssid"
+
+    config CONNECT_WIFI_2_PASSWORD
+      string "Password of your secondary WiFi network"
+    default "pass"
+  endif
+
+  config CONNECT_WIFI_3
+    bool "Configure a third SSID to connect to"
+    default n
+
+  if CONNECT_WIFI_3
+    config CONNECT_WIFI_3_SSID
+      string "SSID of your third WiFi network"
+      default "my ssid"
+
+    config CONNECT_WIFI_3_PASSWORD
+      string "Password of your third WiFi network"
+    default "pass"
+  endif
+
+  config CONNECT_WIFI_4
+    bool "Configure a fourth SSID to connect to"
+    default n
+
+  if CONNECT_WIFI_4
+    config CONNECT_WIFI_4_SSID
+      string "SSID of your fourth WiFi network"
+      default "my ssid"
+
+    config CONNECT_WIFI_4_PASSWORD
+      string "Password of your fourth WiFi network"
+    default "pass"
+  endif
+
+endmenu

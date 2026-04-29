@@ -44,7 +44,7 @@
 #define CONFIG_URL "it doesn't matter" //"iot.dns-cloud.net" няма значение при ClouDNS, но при ACME client е важно
 
 #define CONFIG_DYNDNS_AUTH \
-"OTE%%% ей този дълъг низ ще го получите от ClouDNS като се регистрирате и си създадете host тип A %%%I3Y2NhMg"\
+"OTE%%% ей този дълъг низ ще го получите от ClouDNS като се регистрирате и си създадете host тип A (в Active Dynamic URL)%%%I3Y2NhMg"\
 "&notify=1"
 // може да добавяме
 // "&ip=192.168.1.106"  // ако искаме определено IP 

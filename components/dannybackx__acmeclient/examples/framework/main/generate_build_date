@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "Regenerating build timestamp .. $* .."
+echo -n '#define __BUILD__ "' >$1
+echo -n `date '+%Y-%m-%d %T'` >>$1
+echo '"' >>$1
