@@ -2637,7 +2637,9 @@ void Acme::ReadChallenge(JsonDocument &json)
     challenge->challenges[i]._type = strdup(ct);
     challenge->challenges[i].status = strdup(cs);
     challenge->challenges[i].url = strdup(cu);
-    challenge->challenges[i].token = strdup(ck);
+    if (ck == NULL)
+        ESP_LOGE(acme_tag, "!!! ERROR func '%s' in challenge %d of %d 'acme_json_token' == NULL", __FUNCTION__, i + 1, jca.size());
+    challenge->challenges[i].token = (ck) ? strdup(ck) : NULL;
     challenge->challenges[i].active = false;	// new, internal
   }
 }
