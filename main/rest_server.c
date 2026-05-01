@@ -440,7 +440,7 @@ err:
     return ESP_FAIL;
 }
 
-void StartWebServer(bool have_certificate)
+void start_rest_web_server(bool have_certificate)
 {
     const uint8_t *cert = NULL, *cert_key = NULL;
     if(have_certificate) {    // fttps
@@ -456,7 +456,7 @@ void StartWebServer(bool have_certificate)
         free((void *)cert_key);
 }
 
-void stop_rest_server(void)
+void stop_rest_web_server(void)
 {
     if (server) {
         ESP_LOGI(REST_TAG, "Stop HTTP/HTTPS Server");

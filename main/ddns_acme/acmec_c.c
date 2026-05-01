@@ -13,8 +13,8 @@ static const char *TAG = "acmec_c.c";
 
 #define ACME_TEST_TIME (60 * 60) // на 1 час
 
-extern void StartWebServer(bool have_certificate);
-extern void stop_rest_server(void);
+extern void start_rest_web_server(bool have_certificate);
+extern void stop_rest_web_server(void);
 
 // вместо private: функция на Acme.cpp
 static time_t TimeMbedToTimestamp(mbedtls_x509_time t) 
@@ -48,8 +48,8 @@ static void acme_client_task(void *pvParameters)
         gettimeofday(&tv, 0);
 
         time_t now = tv.tv_sec;
-        // time_t month = (60 * 60 * ( 24 * 89 ) + 74000); // за тестове обновява на почти 28 минути (трябва подобен в Acme.cpp)
-        time_t month = (60 * 60 * 24 * 31);
+        // time_t month = 60 * 60 * 24 * 89 + 74000; // за тестове обновява на почти 28 минути (трябва да се сменят и 2бр. в Acme.cpp)
+        time_t month = 60 * 60 * 24 * 31;
         const mbedtls_x509_crt *certificate = acme_get_certificate();
         time_t until = TimeMbedToTimestamp(certificate->valid_to);
         time_t end_time = (until - month) - now;
@@ -63,15 +63,17 @@ static void acme_client_task(void *pvParameters)
             }
             if (acme_loop(tv.tv_sec)) {
                 ESP_LOGI(TAG, "Certificate got updated, must restart secure web server");
-                // тук трябва да рестартирам WebServer, но ми е по-удобно ресет. Ако можe да си го позволим на 2 месеца.
+                // При обнояване на сертификат трябва web клиента да се рефрешне след:
+                // ресет на ESP32(ако можем да си го позволим на 2 месеца)
                 // vTaskDelay(pdMS_TO_TICKS(10000));
                 // esp_restart();
 
+                // или рестартиран на веб сървъра
+                stop_rest_web_server(); // презапускаме https сървъра
+                start_rest_web_server(true);
+
                 acme_stop_webserver();  // спираме http сървъра
                 simplews = NULL;
-
-                stop_rest_server(); // презапускаме https сървъра
-                StartWebServer(true);
             }
         }
     }
@@ -80,7 +82,6 @@ static void acme_client_task(void *pvParameters)
 bool acme_client(void)
 {
     // esp_log_level_set(TAG, ESP_LOG_VERBOSE);
-    // esp_log_level_set("acme_c.cpp", ESP_LOG_VERBOSE);
     // esp_log_level_set("Acme", ESP_LOG_VERBOSE);
 
     ESP_LOGI(TAG, "Start ACME client");

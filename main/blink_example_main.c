@@ -32,8 +32,8 @@ static const char *TAG = "main";
 EventGroupHandle_t xEventTask;
 int FTP_TASK_FINISH_BIT = BIT2;
 
-extern void StartWebServer(bool have_certificate);
-extern void stop_rest_server(void);
+extern void start_rest_web_server(bool have_certificate);
+extern void stop_rest_web_server(void);
 
 static led_strip_handle_t led_strip;
 
@@ -158,6 +158,7 @@ void app_main(void)
     // esp_log_level_set("httpd_sess", ESP_LOG_VERBOSE);
 
     // esp_log_level_set("esp_https_server", ESP_LOG_VERBOSE);
+    // esp_log_level_set("esp-tls-mbedtls", ESP_LOG_VERBOSE);
 
     // esp_log_level_set("acmec_c.c", ESP_LOG_VERBOSE);
     // esp_log_level_set("dyndns_c.c", ESP_LOG_VERBOSE);
@@ -201,6 +202,7 @@ void app_main(void)
 #endif
 
     // чака интернет връзка (от тук надолу не работят офлайн)
+    ESP_LOGI(TAG, "Wait connection");
     while (!fl_connect)
         vTaskDelay(1000 / portTICK_PERIOD_MS);
 
@@ -255,7 +257,7 @@ void app_main(void)
     have_certificate = acme_client();
 #endif
 
-    StartWebServer(have_certificate);
+    start_rest_web_server(have_certificate);
 
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(100));
@@ -269,8 +271,8 @@ void app_main(void)
                 break;
             case 'r':
             case 'R':
-                stop_rest_server();
-                StartWebServer(have_certificate);
+                stop_rest_web_server();
+                start_rest_web_server(have_certificate);
                 break;
             default:
                 ESP_LOGI(TAG, "h - heap, r - restart web server");
