@@ -110,6 +110,8 @@ Dyndns::Dyndns(const char *p) {
   else if (strcasecmp(p, "noip") == 0 || strcasecmp(p, "no-ip") == 0
         || strcasecmp(p, "noip.com") == 0 || strcasecmp(p, "no-ip.com") == 0)
     provider = DD_NOIP;
+  else if (strcasecmp(p, "duckdns.org") == 0 || strcasecmp(p, "duckdns") == 0)
+    provider = DD_CLOUDNS;
   else
     provider = DD_UNKNOWN;
 }
@@ -168,6 +170,8 @@ bool Dyndns::update() {
     sprintf(header, hdr_template, auth);
   } else if (provider == DD_CLOUDNS) {
     len = strlen(get_template3) + strlen(auth) + 5;
+  } else if (provider == DD_DUCKDNS) {
+    len = strlen(get_template4) + strlen(hostname) + strlen(auth) + 5;
   } else {	// DD_UNKNOWN
     ESP_LOGE(dyndns_tag, "%s(DD_UNKNOWN), aborting", __FUNCTION__);
     return false;
@@ -186,6 +190,8 @@ bool Dyndns::update() {
       sprintf(query, get_template1, hostname);
   } else if (provider == DD_CLOUDNS) {
       sprintf(query, get_template3, auth);
+  } else if (provider == DD_DUCKDNS) {
+      sprintf(query, get_template4, hostname, auth);
   }
   ESP_LOGD(dyndns_tag, "Query %s", query);
 
@@ -227,7 +233,7 @@ bool Dyndns::update() {
     ESP_LOGE(dyndns_tag, "HTTP GET request failed: %s", esp_err_to_name(err));
   }
 
-  if (provider == DD_CLOUDNS) {
+  if ((provider == DD_CLOUDNS) || (provider == DD_DUCKDNS)) {
     // Thanks to esp_http_client_perform(), data read is already in this->buf
     ESP_LOGD(dyndns_tag, "received {%s}", buf);
 

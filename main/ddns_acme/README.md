@@ -4,7 +4,7 @@
 
 Налага се да го ползваме, когато интернет доставчика не ни осигурява статичен IP адрес за връзка. Ползвам го и за получване на безплатен домейн (в случая името е някакво производно).
 
-Използва се [компонента](https://components.espressif.com/components/dannybackx/dyndns/versions/0.0.3) с доставчици [NoIP](https://www.noip.com/) или [ClouDNS](https://www.cloudns.net/main/). Ползван е [примера](https://sourceforge.net/p/esp32-acme-client/code/HEAD/tree/trunk/examples/standalone/) от [компонента](https://components.espressif.com/components/dannybackx/acmeclient/versions/0.1.0), като е отрязана ACME частта.
+Използва се [компонента](https://components.espressif.com/components/dannybackx/dyndns/versions/0.0.3) с доставчици [NoIP](https://www.noip.com/), [ClouDNS](https://www.cloudns.net/main/) или [DuckDNS](https://www.duckdns.org/). Ползван е [примера](https://sourceforge.net/p/esp32-acme-client/code/HEAD/tree/trunk/examples/standalone/) от [компонента](https://components.espressif.com/components/dannybackx/acmeclient/versions/0.1.0), като е отрязана ACME частта.
 
 1. Трябва да се регистрираме в някой от двата доставчици (при ClouDNS, могат да се получат до 50 DNS имена, но само 1 се обслужва с DynamicDNS, повече при платен абонамент) и да получим име на домейн. Тук е показана работата и с двата. Нужно е да създадем файла 'secrets.h', който не е публицуван в GitHub, но има 'secrets_demo.h';
 2. Трябва да се зададе стаичен IP адрес на платката ESP32 в рутера;
@@ -15,13 +15,19 @@
 
 IP то на рутера узнавам от [api.ipify.org](https://api.ipify.org/) и го въвеждам в `NoIP` или `ClouDNS`.  
 
-И рутерите имат механизъм за `Dynamic DNS` но аз с `ClouDNS` не успях, а с `NoIP` не пробвах.
+И рутерите имат механизъм за `Dynamic DNS` но аз с `ClouDNS` не успях, а с `NoIP` не пробвах.  
+
+Сега работим с 3 провайдъра за `Dynamic DNS` и 3те са безплатни но май обслужват само производни от името им домейни:
+
+- [NoIP](https://www.noip.com/) имена : xx.hopto.org
+- [ClouDNS](https://www.cloudns.net/main/) имена : xx.ip-ddns.com
+- [DuckDNS](https://www.duckdns.org/) имена : xx.duckdns.org
 
 ### Забележки
 
 Този клон е добра основа за случай, че нямаме статично IP за ESP32. За `ComNET` се оказа безпредметно, понеже не пускат никой към рутерите (зад тяхната DMZ), ако IP то му не е статично.
 
-В реална обстановка трябва след всяко отпадане на рутера, а и да кажем на 1 час да се проверява public_ip и да се вика dyndns_update() при нужда.
+В реална обстановка трябва след всяко отпадане на рутера, а и да кажем на 5 минути или 1 час да се проверява public_ip и да се вика dyndns_update() при нужда.
 
 ## Получаване на SSL/TLS сертификат от Let's Encrypt, чрез ACME клиент
 

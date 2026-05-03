@@ -162,8 +162,8 @@ void app_main(void)
 
     esp_log_level_set("acmec_c.c", ESP_LOG_VERBOSE);
     // esp_log_level_set("Acme", ESP_LOG_VERBOSE);
-    esp_log_level_set("dyndns_c.c", ESP_LOG_VERBOSE);
-    esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
+    // esp_log_level_set("dyndns_c.c", ESP_LOG_VERBOSE);
+    // esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {

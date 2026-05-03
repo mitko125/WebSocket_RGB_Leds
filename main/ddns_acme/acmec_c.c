@@ -37,6 +37,9 @@ static time_t TimeMbedToTimestamp(mbedtls_x509_time t)
 static void acme_client_task(void *pvParameters)
 {
     httpd_handle_t simplews = NULL;
+    // трябва да ресетваме ESP32 при неуспех по този брояч
+    int cou = 0;
+    vTaskDelay(pdMS_TO_TICKS(20000));
 
     while(true) {
         // проверява дали не е изтекъл ACME сертификата и го обновява 31 дена преди изтичането.

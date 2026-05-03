@@ -31,7 +31,8 @@ extern "C"
     enum dyndns_provider {
         DD_UNKNOWN,
         DD_NOIP,
-        DD_CLOUDNS
+        DD_CLOUDNS,
+        DD_DUCKDNS
     };
     void dyndns_init(enum dyndns_provider);
     void dyndns_set_hostname();

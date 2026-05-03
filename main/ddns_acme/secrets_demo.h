@@ -18,6 +18,7 @@
 // ### 5 . SSL/TLS сертификат
 // #define ENABLE_ACME_CLIENT 1
 
+
 // диск за интернет сайта
 #define WEB_MOUNT_POINT "/html_fs"
 
@@ -32,12 +33,25 @@
 #define CONFIG_FTP_USER         "admin"
 #define CONFIG_FTP_PASSWORD     "admin"
 
-// за услугите на ClouDNS
-#define DDNS_PROVIDEF 2 // DD_CLOUDNS
+
 // за услугите на NoIP
 // #define DDNS_PROVIDEF 1 // DD_NOIP
+// за услугите на ClouDNS
+// #define DDNS_PROVIDEF 2 // DD_CLOUDNS
+// за услугите на DuckDNS
+#define DDNS_PROVIDEF 3 // DD_DUCKDNS
 
-#if DDNS_PROVIDEF == 2  // DD_CLOUDNS
+#if DDNS_PROVIDEF == 1    // DD_NOIP
+
+#define PROVIDER_NAME "NoIP/"
+// хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
+#define CONFIG_URL "вашия.hopto.org"
+
+// #define CONFIG_DYNDNS_AUTH "името ви(емайл):паволата ви"
+// кодирано с https://www.base64encode.org/ (това не е шифроване, декодира се)
+#define CONFIG_DYNDNS_AUTH "bW една дълга ала-бала xLg"
+
+#elif DDNS_PROVIDEF == 2  // DD_CLOUDNS
 
 #define PROVIDER_NAME "ClouDNS/"
 // хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
@@ -52,20 +66,26 @@
 // "&notify=1"             // Ако искате да получавате известия по имейл за промени 
 // "&update_fo_main_ip=1"
 
-#elif DDNS_PROVIDEF == 1    // DD_NOIP
+#elif DDNS_PROVIDEF == 3  // DD_DUCKDNS
 
-#define PROVIDER_NAME "NoIP/"
-// хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
-#define CONFIG_URL "вашия.hopto.org"
+#define PROVIDER_NAME "DuckDNS/"
+// хоста или домейна, за който сме конфигурирали DuckDNS IP то и сертифицирали ACME client 
+#define CONFIG_URL "вашия.duckdns.org"
 
-// #define CONFIG_DYNDNS_AUTH "името ви(емайл):паволата ви"
-// кодирано с https://www.base64encode.org/ (това не е шифроване, декодира се)
-#define CONFIG_DYNDNS_AUTH "bW една дълга ала-бала xLg"
+// token от регистрацията в https://www.duckdns.org/domains
+#define CONFIG_DYNDNS_AUTH "ala-bala-portokala-aaa-bbb"
 
-#endif
+#elifndef DDNS_PROVIDEF
+
+error ---> "DDNS_PROVIDEF must be defined"
+
+#endif  // DDNS_PROVIDEF == ...
+
 
 // ACME client
 // тук трябва да пращат емейл, че изтича сертификата. Но май са спрели да пращат.
 #define CONFIG_EMAIL "test@test-mail.com"
+
+
 // за експирименто без него, ако е за реален сертификат с него. Сменя от staging в production при #define
 #define CONFIG_DO_PRODUCTION 1

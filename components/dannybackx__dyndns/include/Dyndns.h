@@ -30,7 +30,8 @@
 enum dyndns_provider {
  DD_UNKNOWN,
  DD_NOIP,
- DD_CLOUDNS
+ DD_CLOUDNS,
+ DD_DUCKDNS
 };
 
 class Dyndns {
@@ -62,6 +63,8 @@ private:
   const char *get_template2 =	"http://dynupdate.no-ip.com/nic/update?hostname=%s&myip=%s";
   // cloudns
   const char *get_template3 =	"http://ipv4.cloudns.net/api/dynamicURL/?q=%s";
+  // duckdns
+  const char *get_template4 =	"http://www.duckdns.org/update?domains=%s&token=%s";
 
   const char *hdr_header =	"Authorization";
   const char *hdr_template =	"Basic %s";
