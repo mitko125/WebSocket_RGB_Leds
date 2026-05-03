@@ -17,20 +17,21 @@ extern void start_rest_web_server(bool have_certificate);
 extern void stop_rest_web_server(void);
 
 // вместо private: функция на Acme.cpp
-static time_t TimeMbedToTimestamp(mbedtls_x509_time t) 
+static time_t TimeMbedToTimestamp(mbedtls_x509_time t)
 {
-  struct tm tms;
-  tms.tm_year = t.year - 1900;
-  tms.tm_mon = t.mon - 1;
-  tms.tm_mday = t.day;
-  tms.tm_hour = t.hour;
-  tms.tm_min = t.min;
-  tms.tm_sec = t.sec;
-  tms.tm_isdst = false;
+    struct tm tms;
+    tms.tm_year = t.year - 1900;
+    tms.tm_mon = t.mon - 1;
+    tms.tm_mday = t.day;
+    tms.tm_hour = t.hour;
+    tms.tm_min = t.min;
+    tms.tm_sec = t.sec;
+    tms.tm_isdst = false;
 
-  return mktime(&tms);
+    return mktime(&tms);
 }
 
+// ТУКА САМО СЕ ОБНОВЯВА, НЕ СЕ ИЗДАВА СЕРИФИКАТ.
 // симулираме до извесна степен техния acme_loop(.. защото няма критерий за запускане на техния http сървър, който
 // пречи на други сървъри и вакаме acme_loop(.. само при нужда от обновяване
 static void acme_client_task(void *pvParameters)
@@ -38,11 +39,6 @@ static void acme_client_task(void *pvParameters)
     httpd_handle_t simplews = NULL;
 
     while(true) {
-        if (simplews)
-            vTaskDelay(pdMS_TO_TICKS(10000)); // ускоряваме за обновяването, макар че казват 10sek е бързо, но демото е на 200ms
-        else
-            vTaskDelay(pdMS_TO_TICKS(1000 * ACME_TEST_TIME));
-
         // проверява дали не е изтекъл ACME сертификата и го обновява 31 дена преди изтичането.
         struct timeval tv;
         gettimeofday(&tv, 0);
@@ -53,7 +49,7 @@ static void acme_client_task(void *pvParameters)
         const mbedtls_x509_crt *certificate = acme_get_certificate();
         time_t until = TimeMbedToTimestamp(certificate->valid_to);
         time_t end_time = (until - month) - now;
-        ESP_LOGD(TAG, "%d day %02d:%02d:%02d", (int)(end_time / (60 * 60 * 24)),
+        ESP_LOGD(TAG, "to renewal certificate %d day %02d:%02d:%02d", (int)(end_time / (60 * 60 * 24)),
                  (int)(end_time % (60 * 60 * 24)) / (60 * 60), (int)(end_time % (60 * 60)) / 60, (int)(end_time % (60)));
 
         if ((end_time < 0) || simplews) {
@@ -74,12 +70,27 @@ static void acme_client_task(void *pvParameters)
 
                 acme_stop_webserver();  // спираме http сървъра
                 simplews = NULL;
+                cou = 0;
+            } else {
+                ESP_LOGE(TAG, "Unsuccessful attempt to renewal certificate #%d", ++cou);
+                if (cou > 100) {    // ресет след 100*10=1000 скунди ~ 17 минути и отиваме в acme_client_start 
+                    // който е безкраен или http. Може да сме прекалили в production мод или заради пълно 
+                    // изтичане на сертификата да е нужен нов. Тук само подноваваме.
+                    ESP_LOGE(TAG, "Reset ESP32");
+                    vTaskDelay(pdMS_TO_TICKS(10000));
+                    esp_restart();
+                }
             }
         }
+
+        if (simplews)
+            vTaskDelay(pdMS_TO_TICKS(10000)); // ускоряваме за обновяването, макар че казват 10sek е бързо, но демото е на 200ms
+        else
+            vTaskDelay(pdMS_TO_TICKS(1000 * ACME_TEST_TIME));
     }
 }
 
-bool acme_client(void)
+bool acme_client_start(void)
 {
     // esp_log_level_set(TAG, ESP_LOG_VERBOSE);
     // esp_log_level_set("Acme", ESP_LOG_VERBOSE);
@@ -114,6 +125,8 @@ bool acme_client(void)
             // Note : leak
             have_certificate = true;
         } else {
+            // ТУКА САМО СЕ ИЗДАВА, НЕ СЕ ОБНОВЯВА СЕРИФИКАТ.
+            // АКО СЕРТИФИКАТА Е ИЗТЕКЪЛ ТРЯБВА ДА СЕ ИЗДАДЕ НОВ. НЕ СЕ ОБНОВЯВА ИЗТЕКЪЛ СЕРТИФИКАТ.
             ESP_LOGE(TAG, "%s: we don't have a valid cert", __FUNCTION__);
 
             // долните 3 реда могат да се махнат, когато сте готови
@@ -137,7 +150,7 @@ bool acme_client(void)
             acme_set_webserver(simplews);
 
             // Simplistic loop - keep going until we get a cert, then start secure webserver
-            // може да излезем по брояч и да минем на http
+            // може да излезем по брояч и да минем на http, не е желателен ресет на ESP32 не би помогнал.
             int cou = 0;
             while (!acme_have_valid_certificate()) {
                 struct timeval tv;

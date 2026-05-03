@@ -1,0 +1,10 @@
+description: This is a client for dynamic DNS services, aimed at ESP (ESP32, etc)
+  devices. Your node can use such a service to make its IP address known as a public
+  DNS name, so you can find it, and use it from applications.
+files:
+  exclude:
+  - '*~'
+  - '*-'
+  - '*.old'
+url: http://espdyndns.sourceforge.io/
+version: 0.0.4

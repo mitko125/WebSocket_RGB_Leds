@@ -1,0 +1,16 @@
+menu "Dynamic DNS"
+  config RUN_DYNDNS
+    bool "Do we run DynDNS"
+    default true
+
+  config DYNDNS_DEVICE_URL
+    string "URL of this device"
+    default "iot.mydomain.org"
+
+  config DYNDNS_AUTH
+    string "Authentication code for e.g. CloudNS.net or NoIP.com"
+    default "xx"
+    help
+      authentication string for noip.com
+
+endmenu

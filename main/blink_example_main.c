@@ -160,9 +160,10 @@ void app_main(void)
     // esp_log_level_set("esp_https_server", ESP_LOG_VERBOSE);
     // esp_log_level_set("esp-tls-mbedtls", ESP_LOG_VERBOSE);
 
-    // esp_log_level_set("acmec_c.c", ESP_LOG_VERBOSE);
-    // esp_log_level_set("dyndns_c.c", ESP_LOG_VERBOSE);
+    esp_log_level_set("acmec_c.c", ESP_LOG_VERBOSE);
     // esp_log_level_set("Acme", ESP_LOG_VERBOSE);
+    esp_log_level_set("dyndns_c.c", ESP_LOG_VERBOSE);
+    esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
 
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -254,7 +255,7 @@ void app_main(void)
 #ifndef ENABLE_SNTP
 #error We need exact time here. (ENABLE_SNTP)
 #endif
-    have_certificate = acme_client();
+    have_certificate = acme_client_start();
 #endif
 
     start_rest_web_server(have_certificate);
