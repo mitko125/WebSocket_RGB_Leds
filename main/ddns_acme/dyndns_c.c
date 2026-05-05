@@ -9,6 +9,7 @@
 #endif
 #include "esp_http_client.h"
 
+#include "my_connect.h"
 #include "dyndns_c.h"
 
 static const char *TAG = "dyndns_c.c";
@@ -21,7 +22,7 @@ static const char *TAG = "dyndns_c.c";
 static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     static char *output_buffer; // Buffer to store response of http request from event handler
-    static int output_len;      // Stores number of bytes read
+    static int output_len = 0;      // Stores number of bytes read
     switch (evt->event_id) {
     case HTTP_EVENT_ERROR:
         ESP_LOGD(TAG, "HTTP_EVENT_ERROR");
@@ -86,12 +87,12 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
         output_len = 0;
         break;
     case HTTP_EVENT_DISCONNECTED:
-        ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
+        ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
         int mbedtls_err = 0;
         esp_err_t err = esp_tls_get_and_clear_last_error((esp_tls_error_handle_t)evt->data, &mbedtls_err, NULL);
         if (err != 0) {
-            ESP_LOGI(TAG, "Last esp error code: 0x%x", err);
-            ESP_LOGI(TAG, "Last mbedtls failure: 0x%x", mbedtls_err);
+            ESP_LOGE(TAG, "Last esp error code: 0x%x", err);
+            ESP_LOGE(TAG, "Last mbedtls failure: 0x%x", mbedtls_err);
         }
         if (output_buffer != NULL) {
             free(output_buffer);
@@ -109,12 +110,11 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-// за този буфер най добре да си поиграем с malloc(, но ме мързи
 static char local_response_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};
 // прочетеното от api.ipify.org IP
 static char public_ip[4 * 4] = {0};
-// записаното от dyndns_update() IP, трябва да го пазим в енергонезависима памет
-char *nvs_ip = "";
+// записаното от dyndns_update() IP
+static char old_ip[4 * 4] = {0};
 static esp_err_t get_public_ip(void)
 {
     esp_err_t err = ESP_OK;
@@ -136,7 +136,7 @@ static esp_err_t get_public_ip(void)
     if (err == ESP_OK) {
         int status = esp_http_client_get_status_code(client);
         int64_t length = esp_http_client_get_content_length(client);
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %" PRId64, status, length);
+        ESP_LOGD(TAG, "HTTP GET Status = %d, content_length = %" PRId64, status, length);
         if (length) {
             strcpy(public_ip, local_response_buffer);
         }
@@ -150,30 +150,53 @@ static esp_err_t get_public_ip(void)
     return err;
 }
 
-void dynamic_dns_set(void)
+static void dynamic_dns_set(void *pvParameters)
+{
+    while(true) {
+        while (ESP_OK != get_public_ip()) {
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
+            while (!fl_connect)
+                vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+        while (strcmp(public_ip, old_ip)) {
+            ESP_LOGI(TAG, "My new public IP : %s", public_ip);
+            bool ddns_ok = false;
+            do
+            {
+                dyndns_init(DDNS_PROVIDER);
+                dyndns_set_hostname(CONFIG_URL);
+                dyndns_set_auth(CONFIG_DYNDNS_AUTH);
+                while (!fl_connect)
+                    vTaskDelay(1000 / portTICK_PERIOD_MS);
+                ddns_ok = dyndns_update();
+                if (ddns_ok)
+                    ESP_LOGI(TAG, "%s: DynDNS update ok (%s)", __FUNCTION__, CONFIG_URL);
+                else {
+                    ESP_LOGE(TAG, "%s: DynDNS update failed (%s)", __FUNCTION__, CONFIG_URL);
+                    vTaskDelay(10000 / portTICK_PERIOD_MS);
+                }
+            } while (!ddns_ok);
+
+            strcpy(old_ip, public_ip);
+        };
+        int cou_5min = 5 * 60 * 1000 / 100;
+        while (cou_5min) {
+            vTaskDelay(100 / portTICK_PERIOD_MS);
+            if (fl_connect)
+                cou_5min--;
+            else
+                cou_5min = 1;
+        }
+    }
+}
+
+void dynamic_dns_start(void)
 {
     // esp_log_level_set(TAG, ESP_LOG_VERBOSE);
     // esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
+    strcpy(old_ip, "______");
 
-    ESP_ERROR_CHECK(get_public_ip());
-    ESP_LOGI(TAG, "My public IP : %s", public_ip);
-
-    while (strcmp(public_ip, nvs_ip)) {
-
-        bool ddns_ok = false;
-        do {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-            dyndns_init(DDNS_PROVIDEF);
-            dyndns_set_hostname(CONFIG_URL);
-            dyndns_set_auth(CONFIG_DYNDNS_AUTH);
-            ddns_ok = dyndns_update();
-            if (ddns_ok)
-                ESP_LOGI(TAG, "%s: DynDNS update ok (%s)", __FUNCTION__, CONFIG_URL);
-            else
-                ESP_LOGE(TAG, "%s: DynDNS update failed (%s)", __FUNCTION__, CONFIG_URL);
-        } while (!ddns_ok);
-
-        nvs_ip = public_ip; // това е само демо
-    };
+    xTaskCreate(dynamic_dns_set, "dynamic_dns", 4095 * 2, NULL, tskIDLE_PRIORITY, NULL);
+    while (strcmp(public_ip, old_ip))
+        vTaskDelay(100 / portTICK_PERIOD_MS);
 }

@@ -132,10 +132,12 @@ bool acme_client_start(void)
             // АКО СЕРТИФИКАТА Е ИЗТЕКЪЛ ТРЯБВА ДА СЕ ИЗДАДЕ НОВ. НЕ СЕ ОБНОВЯВА ИЗТЕКЪЛ СЕРТИФИКАТ.
             ESP_LOGE(TAG, "%s: we don't have a valid cert", __FUNCTION__);
 
-            // долните 3 реда могат да се махнат, когато сте готови
-            ESP_LOGE(TAG, "Ако четеш това може с ftp да копираш изправен 'staging' или 'production'.");
-            ESP_LOGE(TAG, "Или закоментирай 'return false;' на долния ред.");
-            // return false;
+            // долните 5 реда могат да се махнат, когато сте готови
+            ESP_LOGE(TAG, "Ако четеш това значи няма серификат или вече е изтекъл");
+            ESP_LOGE(TAG, "Може с ftp да се копира изправен в 'staging' или 'production'.");
+            ESP_LOGE(TAG, "Или да се стартира издаване на нов чрез:");
+            ESP_LOGE(TAG, "Закоментиране 'return false;' на долния ред, който стартира http вместо https.");
+            return false;
 
             if (acme_get_account_key() == 0) {
                 ESP_LOGI(TAG, "generate account key");

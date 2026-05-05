@@ -160,7 +160,7 @@ void app_main(void)
     // esp_log_level_set("esp_https_server", ESP_LOG_VERBOSE);
     // esp_log_level_set("esp-tls-mbedtls", ESP_LOG_VERBOSE);
 
-    esp_log_level_set("acmec_c.c", ESP_LOG_VERBOSE);
+    // esp_log_level_set("acmec_c.c", ESP_LOG_VERBOSE);
     // esp_log_level_set("Acme", ESP_LOG_VERBOSE);
     // esp_log_level_set("dyndns_c.c", ESP_LOG_VERBOSE);
     // esp_log_level_set("dyndns", ESP_LOG_VERBOSE);
@@ -246,8 +246,8 @@ void app_main(void)
 #endif
 
 #ifdef ENABLE_DDNS
-    extern void dynamic_dns_set(void);
-    dynamic_dns_set();
+    extern void dynamic_dns_start(void);
+    dynamic_dns_start();
 #endif
 
     bool have_certificate = false;

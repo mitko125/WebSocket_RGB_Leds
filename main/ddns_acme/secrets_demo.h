@@ -35,13 +35,15 @@
 
 
 // за услугите на NoIP
-// #define DDNS_PROVIDEF 1 // DD_NOIP
+// #define DDNS_PROVIDER 1 // DD_NOIP
 // за услугите на ClouDNS
-// #define DDNS_PROVIDEF 2 // DD_CLOUDNS
+// #define DDNS_PROVIDER 2 // DD_CLOUDNS
 // за услугите на DuckDNS
-#define DDNS_PROVIDEF 3 // DD_DUCKDNS
+#define DDNS_PROVIDER 3 // DD_DUCKDNS
 
-#if DDNS_PROVIDEF == 1    // DD_NOIP
+#undef CONFIG_DYNDNS_AUTH //за да не се бие с sdkconfig
+
+#if DDNS_PROVIDER == 1    // DD_NOIP
 
 #define PROVIDER_NAME "NoIP/"
 // хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
@@ -51,7 +53,7 @@
 // кодирано с https://www.base64encode.org/ (това не е шифроване, декодира се)
 #define CONFIG_DYNDNS_AUTH "bW една дълга ала-бала xLg"
 
-#elif DDNS_PROVIDEF == 2  // DD_CLOUDNS
+#elif DDNS_PROVIDER == 2  // DD_CLOUDNS
 
 #define PROVIDER_NAME "ClouDNS/"
 // хоста или домейна, за който сме конфигурирали DynDNS IP то и сертифицирали ACME client 
@@ -66,20 +68,20 @@
 // "&notify=1"             // Ако искате да получавате известия по имейл за промени 
 // "&update_fo_main_ip=1"
 
-#elif DDNS_PROVIDEF == 3  // DD_DUCKDNS
+#elif DDNS_PROVIDER == 3  // DD_DUCKDNS
 
 #define PROVIDER_NAME "DuckDNS/"
 // хоста или домейна, за който сме конфигурирали DuckDNS IP то и сертифицирали ACME client 
 #define CONFIG_URL "вашия.duckdns.org"
 
 // token от регистрацията в https://www.duckdns.org/domains
-#define CONFIG_DYNDNS_AUTH "ala-bala-portokala-aaa-bbb"
+#define CONFIG_DYNDNS_AUTH "%%% ... %%%"
 
-#elifndef DDNS_PROVIDEF
+#elifndef DDNS_PROVIDER
 
-error ---> "DDNS_PROVIDEF must be defined"
+error ---> "DDNS_PROVIDER must be defined"
 
-#endif  // DDNS_PROVIDEF == ...
+#endif  // DDNS_PROVIDER == ...
 
 
 // ACME client
