@@ -27,13 +27,15 @@
 #include <esp_https_server.h>
 #include "esp_tls.h"
 
-// Стартира ACME проверява дали има валиден сертификат, ако няма създава
+// Стартира ACME проверява дали има валиден сертификат.
+// Ако няма или е изтекъл, създава нов.
 bool acme_client_start(void);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
   void acme_init();
+//   Издава или обновява сертификат
   bool acme_loop(time_t);
   void acme_set_url(const char *u);
   void acme_set_account_key_filename(const char *fn);
@@ -50,7 +52,7 @@ extern "C" {
   const mbedtls_pk_context *acme_get_account_key();
   const mbedtls_pk_context *acme_get_certkey();
 
-  const uint8_t *acme_read_account_key();
+//   const uint8_t *acme_read_account_key();
   const uint8_t *acme_read_certificate();
   const uint8_t *acme_read_cert_key();
 

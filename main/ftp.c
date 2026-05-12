@@ -50,8 +50,13 @@
 
 #include "dirent.h"
 #include "esp_system.h"
-//#include "esp_spi_flash.h" // ESP-IDF V4
-#include "esp_flash.h" // ESP-IDF V5
+#if ESP_IDF_VERSION_MAJOR < 5
+#include "esp_spi_flash.h" // ESP-IDF V4
+#elif ESP_IDF_VERSION_MAJOR == 5
+#if ESP_IDF_VERSION_MINOR < 4
+#include "esp_flash.h" // ESP-IDF V5.3.1
+#endif
+#endif 
 #include "nvs_flash.h"
 #include "esp_log.h"
 

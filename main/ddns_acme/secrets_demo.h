@@ -79,7 +79,7 @@
 
 #elifndef DDNS_PROVIDER
 
-error ---> "DDNS_PROVIDER must be defined"
+#error "DDNS_PROVIDER must be defined"
 
 #endif  // DDNS_PROVIDER == ...
 

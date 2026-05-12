@@ -3404,7 +3404,7 @@ void Acme::setUrl(const char *fn) {
 
 void Acme::setAltUrl(const int ix, const char *fn) {
   if (alt_urls == 0) {
-    alt_urls = (const char **)calloc(sizeof(char *), 4);
+    alt_urls = (const char **)calloc((size_t)sizeof(char *), 4);
     alt_url_cnt = 4;
   }
   if (alt_url_cnt < ix + 1) {
