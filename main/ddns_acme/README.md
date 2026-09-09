@@ -23,7 +23,7 @@ DNS Time to Live `TTL` време за обновяване взаимовръз
 
 - [NoIP](https://www.noip.com/) имена : xxx.hopto.org. Само 1 име и иска месечно потвърждаване. `TTL` 60 секунди.
 - [ClouDNS](https://www.cloudns.net/main/) имена : xxx.ip-ddns.com. До 50 имена но безплатно само 1 с динамично IP. Не знам как е при платените `TTL`, но при безплатен се пригответе да чакате около 1час.
-- [DuckDNS](https://www.duckdns.org/) имена : xxx.duckdns.org. До 5 имена. `TTL` не е указано, но е бързо. Този ми стана лубимец за безплатен, въпреки че в [компонента](https://components.espressif.com/components/dannybackx/acmeclient/versions/0.1.0) не е даден пример с него.
+- [DuckDNS](https://www.duckdns.org/) имена : xxx.duckdns.org. До 5 имена. `TTL` не е указано, но е бързо. Този ми стана любимец за безплатен, въпреки че в [компонента](https://components.espressif.com/components/dannybackx/acmeclient/versions/0.1.0) не е даден пример с него.
 
 ### Забележка
 
@@ -49,7 +49,7 @@ Build notes :
 
 ### **ЗАБЕЛЕЖКА:**
 
-Понеже `FLASH_IN_PROJECT` в `CMakeLists.txt` изтрива целия `storage`, изграждаме допълнителен `storage1`, където `ACME клиента` да записва сертификатите си, без да се изтриват. Избира се с `#define ACME_MOUNT_POINT` и губим 500K flash (по принцип стигат и 100K, но аз експериментира и държа на flash няколко доставчика). Другата опция е без `FLASH_IN_PROJECT`, ако както в случая е завършила разработката на html файловете. При избиране на втория вариант с готови сертификати и html файлове се играе през `ftp`. Всичко това може да се реши и през `Konfig` (за ACME [пример1](/managed_components/dannybackx__acmeclient/examples/standalone/main/Kconfig), [пример2](/managed_components/dannybackx__acmeclient/examples/framework/main/Kconfig) са добри), но това е учебен проект.
+Понеже `FLASH_IN_PROJECT` в `CMakeLists.txt` изтрива целия `storage`, изграждаме допълнителен `storage1`, където `ACME клиента` да записва сертификатите си, без да се изтриват. Избира се с `#define ACME_MOUNT_POINT` и губим 500K flash (по принцип стигат и 100K, но аз експериментирам и държа на flash няколко доставчика). Другата опция е без `FLASH_IN_PROJECT`, ако както в случая е завършила разработката на html файловете. При избиране на втория вариант с готови сертификати и html файлове се играе през `ftp`. Всичко това може да се реши и през `Konfig` (за ACME [пример1](/managed_components/dannybackx__acmeclient/examples/standalone/main/Kconfig), [пример2](/managed_components/dannybackx__acmeclient/examples/framework/main/Kconfig) са добри), но това е учебен проект.
 
 1. Ползван е [пример1](https://sourceforge.net/p/esp32-acme-client/code/HEAD/tree/trunk/examples/standalone/), като е отрязана `DynDNS` частта. Файловете `acmec.*` са поизрязани и преименувани в `acmec_c.*`. Добавен е и `acmec_c.c`, където е преобразувана оригинална логика от примера.
 2. Преобразуваме `start_rest_server(...)` да работи като `start_webserver(..)` от горния `пример`. Това доведе до промени в `script.js` и трябва да се внимава с горната `ЗАБЕЛЕЖКА`. Вече сайта работи по `http` и `https`, в зависимост от наличието на сертификати.

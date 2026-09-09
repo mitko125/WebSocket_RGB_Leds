@@ -111,7 +111,7 @@ Dyndns::Dyndns(const char *p) {
         || strcasecmp(p, "noip.com") == 0 || strcasecmp(p, "no-ip.com") == 0)
     provider = DD_NOIP;
   else if (strcasecmp(p, "duckdns.org") == 0 || strcasecmp(p, "duckdns") == 0)
-    provider = DD_CLOUDNS;
+    provider = DD_DUCKDNS;
   else
     provider = DD_UNKNOWN;
 }
